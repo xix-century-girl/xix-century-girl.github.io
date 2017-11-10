@@ -1,0 +1,21 @@
+.slimSpace {
+	width: 80%;
+}
+
+.twoColumns {
+    -webkit-column-gap: 20px;
+       -moz-column-gap: 20px;
+            column-gap: 20px;
+    -webkit-column-count: 2;
+       -moz-column-count: 2;
+            column-count: 2;
+}
+
+.text-left {
+	text-align: left !important;
+}
+
+.previewBorder {
+	border-style: inset;
+	border-width: 3px;
+}

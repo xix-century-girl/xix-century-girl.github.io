@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="../PatternAppTemplate/pattern-app-template.css" />
+	</head>
+	<body>
+		<div id="stockingsApp"></div>
+		<script src="../PatternAppTemplate/pattern-app-template.js"></script>
+		<script>
+			var inputDefinitions = [
+				new InputDefinition("pSzerProbki", "Początkowa szerokość próbki"),
+				new InputDefinition("pDlProbki", "Początkowa długość próbki"),
+				new InputDefinition("kSzerProbki", "Końcowa szerokość próbki"),
+				new InputDefinition("kDlProbki", "Końcowa długość próbki"),
+				new InputDefinition("maxSzerProbki", "Maksymalna szerokość próbki"),
+				new InputDefinition("dlGoryStopy", "Długość góry stopy"),
+				new InputDefinition("dlKostkaLydka", "Długość od kostki do łydki"),
+				new InputDefinition("dlKolanoPodkolano", "Długość od kolana do podkolana"),
+				new InputDefinition("dlKostkaKolano", "Długość od kostki do kolana"),
+				new InputDefinition("dlKolanoBrzeg", "Długość od kolana wyżej"),
+				new InputDefinition("obPalcow", "Obwód palców stopy"),
+				new InputDefinition("obPiety", "Obwód w pięcie"),
+				new InputDefinition("obKostki", "Obwód kostki"),
+				new InputDefinition("obLydki", "Obwód łydki"),
+				new InputDefinition("obPodkolanem", "Obwód pod kolanem"),
+				new InputDefinition("obKolana", "Obwód kolana"),
+				new InputDefinition("obUda", "Obwód uda")
+			];
+			
+			var outputDefinitions = [
+				new OutputDefinition("zmianaSzer", "Zmiana szerokości", function(v) { return v.kSzerProbki / v.pSzerProbki;}, "float"),
+				new OutputDefinition("zmianaDl", "Zmiana długości", function(v) { return v.kDlProbki / v.pDlProbki;}, "float"),
+				new OutputDefinition("maxZmianaSzer", "Maksymalna zmiana szerokości", function(v) { return v.maxSzerProbki / v.pSzerProbki;}, "float"),
+				new OutputDefinition("pDlGoryStopy", "Przeliczona długość góry stopy", function(v) { return v.dlGoryStopy / v.zmianaDl;}, "cm"),
+				new OutputDefinition("pDlKostkaLydka", "Przeliczona długość od kostki do łydki", function(v) { return v.dlKostkaLydka / v.zmianaDl;}, "cm"),
+				new OutputDefinition("pDlKolanoPodkolano", "Przeliczona długość od kolana do podkolana", function(v) { return v.dlKolanoPodkolano / v.zmianaDl;}, "cm"),
+				new OutputDefinition("pDlKostkaKolano", "Przeliczona długość od kostki do kolana", function(v) { return v.dlKostkaKolano / v.zmianaDl;}, "cm"),
+				new OutputDefinition("pDlKolanoBrzeg", "Przeliczona długość od kolana wyżej", function(v) { return v.dlKolanoBrzeg / v.zmianaDl;}, "cm"),
+				new OutputDefinition("pObPalcow", "Przeliczony obwód palców stopy", function(v) { return v.obPalcow / v.zmianaSzer;}, "cm"),
+				new OutputDefinition("pObPiety", "Przeliczony obwód w pięcie", function(v) { return v.obPiety / v.zmianaSzer;}, "cm"),
+				new OutputDefinition("pObKostki", "Przeliczony obwód kostki", function(v) { return Math.max(v.obPiety / v.maxZmianaSzer, v.obKostki / v.zmianaSzer);}, "cm"),
+				new OutputDefinition("pObLydki", "Przeliczony obwód łydki", function(v) { return v.obLydki / v.zmianaSzer;}, "cm"),
+				new OutputDefinition("pObPodkolanem", "Przeliczony obwód pod kolanem", function(v) { return v.obPodkolanem / v.zmianaSzer;}, "cm"),
+				new OutputDefinition("pObKolana", "Przeliczony obwód kolana", function(v) { return v.obKolana / v.zmianaSzer;}, "cm"),
+				new OutputDefinition("pObUda", "Przeliczony obwód uda", function(v) { return v.obUda / v.zmianaSzer;}, "cm"),
+				new OutputDefinition("AB", "AB", function(v) { return v.pObUda/2;}, "cm"),
+				new OutputDefinition("CD", "CD", function(v) { return v.pObKolana/2;}, "cm"),
+				new OutputDefinition("EF", "EF", function(v) { return v.pObPodkolanem/2;}, "cm"),
+				new OutputDefinition("GH", "GH", function(v) { return v.pObLydki/2;}, "cm"),
+				new OutputDefinition("IK", "IK", function(v) { return v.pObKostki/2;}, "cm"),
+				new OutputDefinition("JK", "JK, JM, IL", function(v) { return v.pObPiety/4;}, "cm"),
+				new OutputDefinition("IJ", "IJ, LM", function(v) { return v.IK - v.JK;}, "cm"),
+				new OutputDefinition("NO", "NO", function(v) { return v.pObPalcow/4;}, "cm")
+			];
+			
+			var previewConfiguration = new PreviewConfiguration([
+				new PointDefinition("A", function(v) { return [-v.AB, 0]}),
+				new PointDefinition("B", function(v) { return [0, 0]}),
+				new PointDefinition("C", function(v) { return [-v.CD, v.B[1] + v.dlKolanoBrzeg]}),
+				new PointDefinition("D", function(v) { return [0, v.B[1] + v.dlKolanoBrzeg]}),
+				new PointDefinition("E", function(v) { return [-v.EF, v.D[1] + v.dlKolanoPodkolano]}),
+				new PointDefinition("F", function(v) { return [0, v.D[1] + v.dlKolanoPodkolano]}),
+				new PointDefinition("G", function(v) { return [-v.GH, v.F[1] + (v.dlKostkaKolano - v.dlKostkaLydka)]}),
+				new PointDefinition("H", function(v) { return [0, v.F[1] + (v.dlKostkaKolano - v.dlKostkaLydka)]}),
+				new PointDefinition("I", function(v) { return [-v.IK, v.H[1] + v.dlKostkaLydka]}),
+				new PointDefinition("J", function(v) { return [-v.JK, v.H[1] + v.dlKostkaLydka]}),
+				new PointDefinition("K", function(v) { return [0, v.H[1] + v.dlKostkaLydka]}),
+				new PointDefinition("L", function(v) { return [v.I[0], v.I[1] + v.JK]}),
+				new PointDefinition("M", function(v) { return [v.L[0] + v.IJ, v.L[1]]}),
+				new PointDefinition("N", function(v) { return [-v.NO, v.K[1] + v.dlGoryStopy]}),
+				new PointDefinition("O", function(v) { return [0, v.K[1] + v.dlGoryStopy]})
+			], [
+				new PathDefinition(["A", "B", "D", "F", "H", "K", "O", "N", "J", "M", "L", "I", "G", "E", "C", "A"])
+			]);
+			
+			var app = new PatternAppTemplate("XVIII century stockings calculator", "Calculate pattern", inputDefinitions, outputDefinitions, previewConfiguration);
+			app.mount("stockingsApp");
+		</script>
+	</body>
+</html>
