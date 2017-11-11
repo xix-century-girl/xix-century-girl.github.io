@@ -8,6 +8,25 @@ function guid() {
     s4() + '-' + s4() + s4() + s4();
 }
 
+function t(str, languageId = "eng") {
+	window.t_eng = {
+		BASIC_INPUT: "Basic input",
+		LOAD_INPUT: "Load input",
+		CALCULATE_PATTERN: "Calculate pattern",
+		INPUT_CODE: "Input code",
+		INPUT_CODE_DESCRIPTION: "Input code is generated during pattern processing. Next time, instead of entering your measurements again from scratch, you can load input code to provide your measurements into the program.",
+		GENERATED_INPUT_CODE: "Generated input code",
+		PREVIEW: "Preview"
+	};
+	
+	try {
+		return window["t_" + languageId][str];
+	} catch(ex) {
+		console.log(ex);
+		return window.t_eng[str];
+	}
+}
+
 function prepareResult(res, precision = 1) {
 	return Math.floor(res*Math.pow(10, precision))/Math.pow(10, precision);
 }
@@ -164,7 +183,7 @@ class SVGPreview {
 				return "<polygon points=\"" + pathDefinition.points.map(function (pointId) {
 					return (ctx.scale*(ctx.points[pointId][0] - ctx.xMin) + xSpacing) + "," + (ctx.scale*(ctx.points[pointId][1] - ctx.yMin) + ySpacing);
 				}).join(" ") + "\" \
-				style=\"fill:white;stroke:black;stroke-width:1px;fill-rule:evenodd;\" />"
+				style=\"fill:transparent;stroke:black;stroke-width:1px;fill-rule:evenodd;\" />"
 			});
 		 + "</svg>";
 	}
@@ -185,7 +204,7 @@ class Preview {
 	
 	mount(id) {
 		document.getElementById(id).innerHTML = 
-		"Preview: \
+		"<label for=\"svg_preview\">" + t("PREVIEW") + ":</label> \
 		<div id=\"svg_preview\"></div>";
 		var svg = new SVGPreview(this.previewConfiguration, this.values);
 		svg.mount("svg_preview");
@@ -234,11 +253,12 @@ class InputCodeLoader {
 		window["_loadInputObject"] = this.loadInputObject.bind(this);
 		
 		document.getElementById(id).innerHTML = 
-		"<div class=\"form-group\"> \
-			<label for=\"input_code\">Input code:</label> \
+		"<p>" + t("INPUT_CODE_DESCRIPTION") + "</p> \
+		 <div class=\"form-group\"> \
+			<label for=\"input_code\">" + t("INPUT_CODE") + ":</label> \
 			<textarea class=\"form-control\" id=\"input_code\"></textarea> \
 		 </div> \
-		 <button type=\"button\" onClick=\"window._loadInputObject()\" class=\"btn\">Load input</button>";
+		 <button type=\"button\" onClick=\"window._loadInputObject()\" class=\"btn\">" + t("LOAD_INPUT") + "</button>";
 	}
 }
 
@@ -250,14 +270,13 @@ class InputCodeGenerator {
 	mount(id) {
 		var str = JSON.stringify(this.inputValues);
 		var encoded = btoa(str);
-		document.getElementById(id).innerHTML = "<label for=\"input_code_gen\">Generated input code:</label><div id=\"input_code_gen\" class=\"well\" style=\"word-wrap: break-word\">" + encoded + "</div>";
+		document.getElementById(id).innerHTML = "<label for=\"input_code_gen\">" + t("GENERATED_INPUT_CODE") + ":</label><div id=\"input_code_gen\" class=\"well\" style=\"word-wrap: break-word\">" + encoded + "</div>";
 	}
 }
 
 class PatternAppTemplate {
-	constructor(title, buttonLabel, inputDefinitions, outputDefinitions, previewConfiguration) {
+	constructor(title, inputDefinitions, outputDefinitions, previewConfiguration) {
 		this.title = title;
-		this.buttonLabel = buttonLabel;
 		this.inputDefinitions = inputDefinitions;
 		this.outputDefinitions = outputDefinitions;
 		this.previewConfiguration = previewConfiguration;
@@ -286,8 +305,8 @@ class PatternAppTemplate {
 		document.getElementById(id).innerHTML = 
 		"<div class=\"container\"><h1>" + this.title + "</h1> \
 		 <ul class=\"nav nav-tabs\"> \
-			<li class=\"active\"><a data-toggle=\"tab\" href=\"#basic\">Basic input</a></li> \
-			<li><a data-toggle=\"tab\" href=\"#load\">Load input</a></li> \
+			<li class=\"active\"><a data-toggle=\"tab\" href=\"#basic\">" + t("BASIC_INPUT") + "</a></li> \
+			<li><a data-toggle=\"tab\" href=\"#load\">" + t("LOAD_INPUT") + "</a></li> \
 		 </ul> \
 		 <div class=\"tab-content\"> \
 			<br /> \
@@ -299,7 +318,7 @@ class PatternAppTemplate {
 			</div> \
 		 </div> \
 		 <br /> \
-		 <button type=\"button\" onClick=\"window._execute()\" class=\"btn btn-primary\">" + this.buttonLabel + "</button> \
+		 <button type=\"button\" onClick=\"window._execute()\" class=\"btn btn-primary\">" + t("CALCULATE_PATTERN") + "</button> \
 		 <br /> \
 		 <br /> \
 		 <div id=\"" + this.appId + "_output\"></div></div>";
