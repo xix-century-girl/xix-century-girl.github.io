@@ -177,14 +177,28 @@ class SVGPreview {
 		var ySize = this.scale*(this.yMax - this.yMin);
 		var xSpacing = xSize*(this.spacingPercents/100.0);
 		var ySpacing = ySize*(this.spacingPercents/100.0);
+		
+		function xTrans(v) {
+			return ctx.scale*(v - ctx.xMin) + xSpacing;
+		}
+		
+		function yTrans(v) {
+			return ctx.scale*(v - ctx.yMin) + ySpacing;
+		}
+		
 		document.getElementById(id).innerHTML =
 		"<svg class=\"previewBorder\" width=\"" + (xSize + 2*xSpacing) + "\" height=\"" + (ySize + 2*ySpacing) + "\" viewBox=\"0 0 " + (xSize + 2*xSpacing) + " " + (ySize + 2*ySpacing) + "\">" + 
 		this.previewConfiguration.pathsDefinitions.map(function (pathDefinition) {
-				return "<polygon points=\"" + pathDefinition.points.map(function (pointId) {
-					return (ctx.scale*(ctx.points[pointId][0] - ctx.xMin) + xSpacing) + "," + (ctx.scale*(ctx.points[pointId][1] - ctx.yMin) + ySpacing);
-				}).join(" ") + "\" \
-				style=\"fill:transparent;stroke:black;stroke-width:1px;fill-rule:evenodd;\" />"
-			});
+			return "<polygon points=\"" + pathDefinition.points.map(function (pointId) {
+				return xTrans(ctx.points[pointId][0]) + "," + yTrans(ctx.points[pointId][1]);
+			}).join(" ") + "\" \
+			style=\"fill:transparent;stroke:black;stroke-width:1px;fill-rule:evenodd;\" />"
+		}) +
+		Object.keys(this.points).map(function (pointId) {
+			return "<circle cx=\"" + xTrans(ctx.points[pointId][0]) + "\" cy=\"" + yTrans(ctx.points[pointId][1]) + "\" r=\"2\" stroke=\"transparent\" fill=\"black\"/> \
+			<circle cx=\"" + xTrans(ctx.points[pointId][0]) + "\" cy=\"" + yTrans(ctx.points[pointId][1]) + "\" r=\"3\" stroke=\"transparent\" fill=\"transparent\" onMouseOver=\"evt.target.setAttribute('fill', 'red'); document.getElementById('label_" + pointId.replace("'", "_prim") + "').setAttribute('fill', 'red')\" onMouseOut=\"evt.target.setAttribute('fill', 'transparent'); document.getElementById('label_" + pointId.replace("'", "_prim") + "').setAttribute('fill', 'transparent')\" /> \
+			<text x=\"" + (xTrans(ctx.points[pointId][0]) +2) + "\" y=\"" + (yTrans(ctx.points[pointId][1]) -2) + "\"><tspan id=\"label_" + pointId.replace("'", "_prim") + "\" fill=\"transparent\">" + pointId + "</tspan></text>";
+		})
 		 + "</svg>";
 	}
 }
