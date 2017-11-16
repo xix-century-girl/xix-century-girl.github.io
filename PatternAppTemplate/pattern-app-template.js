@@ -15,6 +15,7 @@ function t(str, languageId = "eng") {
 		CALCULATE_PATTERN: "Calculate pattern",
 		INPUT_CODE: "Input code",
 		INPUT_CODE_DESCRIPTION: "Input code is generated during pattern processing. Next time, instead of entering your measurements again from scratch, you can load input code to provide your measurements into the program.",
+		EXAMPLE_INPUT_CODE_LABEL: "Use example input code",
 		GENERATED_INPUT_CODE: "Generated input code",
 		PREVIEW: "Preview"
 	};
@@ -40,7 +41,10 @@ function computeUpdatedValues(definitions, initialValues) {
 			try {
 				if(!(definition.id in values)) {
 					try {
-						values[definition.id] = definition.recipe(values);
+						var res = definition.recipe(values, definition.args);
+						if(res !== res) throw "It is NaN!";
+						if(typeof res === undefined) throw "It is undefined!";
+						values[definition.id] = res;
 						changedEl += 1;
 					} catch(ex) {
 						//skip
@@ -71,21 +75,22 @@ class InputDefinition {
 }
 
 class OutputDefinition {
-	constructor(id, label, recipe, type, visible = true) {
+	constructor(id, label, recipe, type, visible = true, args = null) {
 		this.id = id;
 		this.label = label;
 		this.recipe = recipe;
 		this.type = type;
 		this.visible = visible;
+		this.args = args;
 	}
 	
-	generateEl(inputObject) {
+	/*generateEl(inputObject) {
 		try {
 			return this.recipe(inputObject);
 		} catch(ex) {
 			return null;
 		}
-	}
+	}*/
 	
 	generateWarnings(id) {
 		//TODO
@@ -99,7 +104,7 @@ class HoldingTable {
 	}
 	
 	draw(el, type = "html") {
-		if(!el) {
+		if(typeof el === undefined) {
 			return "<div class=\"text-left control-label\">?</div>";
 		} else if(type == "html") {
 			return el;
@@ -130,9 +135,10 @@ class HoldingTable {
 }
 
 class PointDefinition {
-	constructor(id, recipe) {
+	constructor(id, recipe, args) {
 		this.id = id;
 		this.recipe = recipe;
+		this.args = args;
 	}
 }
 
@@ -142,8 +148,15 @@ class PathDefinition {
 	}
 }
 
+class GuideLineDefinition {
+	constructor(space, coord) {
+		this.space = space;
+		this.coord = coord;
+	}
+}
+
 class SVGPreview {
-	constructor(previewConfiguration, values, spacingPercents = 10, scale = 5) { //TODO no definitions
+	constructor(previewConfiguration, values) { //TODO no definitions
 		var ctx = this;
 		this.previewConfiguration = previewConfiguration;
 		values = computeUpdatedValues(previewConfiguration.pointsDefinitions, values);
@@ -151,8 +164,8 @@ class SVGPreview {
 		previewConfiguration.pointsDefinitions.forEach(function (pointDefinition) {
 			ctx.points[pointDefinition.id] = values[pointDefinition.id];
 		});
-		this.spacingPercents = spacingPercents;
-		this.scale = scale;
+		this.spacingPercents = previewConfiguration.spacingPercents;
+		this.scale = previewConfiguration.scale;
 		
 		var pointsCoords = Object.keys(this.points).map(function (key) {
 			return ctx.points[key];
@@ -198,15 +211,29 @@ class SVGPreview {
 			return "<circle cx=\"" + xTrans(ctx.points[pointId][0]) + "\" cy=\"" + yTrans(ctx.points[pointId][1]) + "\" r=\"2\" stroke=\"transparent\" fill=\"black\"/> \
 			<circle cx=\"" + xTrans(ctx.points[pointId][0]) + "\" cy=\"" + yTrans(ctx.points[pointId][1]) + "\" r=\"3\" stroke=\"transparent\" fill=\"transparent\" onMouseOver=\"evt.target.setAttribute('fill', 'red'); document.getElementById('label_" + pointId.replace("'", "_prim") + "').setAttribute('fill', 'red')\" onMouseOut=\"evt.target.setAttribute('fill', 'transparent'); document.getElementById('label_" + pointId.replace("'", "_prim") + "').setAttribute('fill', 'transparent')\" /> \
 			<text x=\"" + (xTrans(ctx.points[pointId][0]) +2) + "\" y=\"" + (yTrans(ctx.points[pointId][1]) -2) + "\"><tspan id=\"label_" + pointId.replace("'", "_prim") + "\" fill=\"transparent\">" + pointId + "</tspan></text>";
-		})
+		}) +
+		(this.guideLinesDefinitions ?
+			this.guideLinesDefinitions.map(function (guideLineDefinition) {
+				if(guideLineDefinition.space == "x")
+					return "<>";
+				else if(guideLineDefinition.space == "y")
+					return "<line x1=\"0\" x2=\"" + (xSize + 2*xSpacing) + "\" y1=\"" + (ySpacing + guideLineDefinition.coord) + "\" y2=\"" + (ySpacing + guideLineDefinition.coord) + "\" stroke=\"red\" stroke-width=\"1\"/>";
+				else {
+					console.log("Space: " + guideLineDefinition.space + " is not valid.");
+					return "<line x1=\"" + (xSpacing + guideLineDefinition.coord) + "\" x2=\"" + (xSpacing + guideLineDefinition.coord) + "\" y1=\"0\" y2=\"" + (ySize + 2*ySpacing) + "\" stroke=\"red\" stroke-width=\"1\"/>";
+				}
+			}) : "")
 		 + "</svg>";
 	}
 }
 
 class PreviewConfiguration {
-	constructor(pointsDefinitions, pathsDefinitions) {
+	constructor(pointsDefinitions, pathsDefinitions, guideLinesDefinitions, spacingPercents = 10, scale = 5) {
 		this.pointsDefinitions = pointsDefinitions;
 		this.pathsDefinitions = pathsDefinitions;
+		this.guideLinesDefinitions = guideLinesDefinitions;
+		this.spacingPercents = spacingPercents;
+		this.scale = scale;
 	}
 }
 
@@ -217,11 +244,15 @@ class Preview {
 	}
 	
 	mount(id) {
-		document.getElementById(id).innerHTML = 
-		"<label for=\"svg_preview\">" + t("PREVIEW") + ":</label> \
-		<div id=\"svg_preview\"></div>";
-		var svg = new SVGPreview(this.previewConfiguration, this.values);
-		svg.mount("svg_preview");
+		if(this.previewConfiguration.pointsDefinitions && this.previewConfiguration.pointsDefinitions.length > 0) {
+			document.getElementById(id).innerHTML = 
+			"<label for=\"svg_preview\">" + t("PREVIEW") + ":</label> \
+			<div id=\"svg_preview\"></div>";
+			var svg = new SVGPreview(this.previewConfiguration, this.values);
+			svg.mount("svg_preview");
+		} else {
+			//TODO warning?
+		}
 	}
 }
 
@@ -243,17 +274,21 @@ class CalculatedPattern {
 		 
 		var outputTable = new HoldingTable(this.outputDefinitions, this.values);
 		var inputCodeGenerator = new InputCodeGenerator(this.values);
-		var preview = new Preview(this.previewConfiguration, this.values);
 		
 		outputTable.mount("output_table", this.values);
 		inputCodeGenerator.mount("input_code_output");
-		preview.mount("preview");
+		
+		if(this.previewConfiguration) {
+			var preview = new Preview(this.previewConfiguration, this.values);
+			preview.mount("preview");
+		}
 	}
 }
 
 class InputCodeLoader {
-	constructor(inputDefinitions) {
+	constructor(inputDefinitions, exampleInputCode) {
 		this.inputDefinitions = inputDefinitions;
+		this.exampleInputCode = exampleInputCode;
 	}
 	
 	loadInputObject() {
@@ -267,8 +302,9 @@ class InputCodeLoader {
 		window["_loadInputObject"] = this.loadInputObject.bind(this);
 		
 		document.getElementById(id).innerHTML = 
-		"<p>" + t("INPUT_CODE_DESCRIPTION") + "</p> \
-		 <div class=\"form-group\"> \
+		"<p>" + t("INPUT_CODE_DESCRIPTION") + "</p>" +
+		(this.exampleInputCode ? "<button type=\"button\" onClick=\"document.getElementById('input_code').value = '" + this.exampleInputCode + "'\" class=\"btn\">" + t("EXAMPLE_INPUT_CODE_LABEL") + "</button><br /><br />" : "") +
+		"<div class=\"form-group\"> \
 			<label for=\"input_code\">" + t("INPUT_CODE") + ":</label> \
 			<textarea class=\"form-control\" id=\"input_code\"></textarea> \
 		 </div> \
@@ -289,11 +325,12 @@ class InputCodeGenerator {
 }
 
 class PatternAppTemplate {
-	constructor(title, inputDefinitions, outputDefinitions, previewConfiguration) {
+	constructor(title, inputDefinitions, outputDefinitions, previewConfiguration, exampleInputCode) {
 		this.title = title;
 		this.inputDefinitions = inputDefinitions;
 		this.outputDefinitions = outputDefinitions;
 		this.previewConfiguration = previewConfiguration;
+		this.exampleInputCode = exampleInputCode;
 		this.appId = title + "_" + guid();
 	}
 	
@@ -340,7 +377,7 @@ class PatternAppTemplate {
 		var inputTable = new HoldingTable(this.inputDefinitions);
 		inputTable.mount(this.appId + "_input");
 		
-		var inputCodeLoader = new InputCodeLoader(this.inputDefinitions);
+		var inputCodeLoader = new InputCodeLoader(this.inputDefinitions, this.exampleInputCode);
 		inputCodeLoader.mount(this.appId + "_code_loader");
 	}
 }
