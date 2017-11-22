@@ -19,3 +19,17 @@
 	border-style: inset;
 	border-width: 3px;
 }
+
+.description {
+	display: none;
+}
+
+.clearfix {
+    overflow: auto;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}

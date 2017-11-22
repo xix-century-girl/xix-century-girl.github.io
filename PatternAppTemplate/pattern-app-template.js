@@ -257,23 +257,30 @@ class Preview {
 }
 
 class CalculatedPattern {
-	constructor(inputDefinitions, outputDefinitions, previewConfiguration, values) {
+	constructor(inputDefinitions, outputDefinitions, previewConfiguration, inputValues, values, outputDescriptionId) {
 		this.inputDefinitions = inputDefinitions;
 		this.outputDefinitions = outputDefinitions;
 		this.previewConfiguration = previewConfiguration;
+		this.inputValues = inputValues;
 		this.values = values;
+		this.outputDescriptionId = outputDescriptionId;
 	}
 	
 	mount(id) {
 		document.getElementById(id).innerHTML = 
 		"<div> \
 			<div id=\"input_code_output\"></div> \
+			<div id=\"outputDescriptionId\"></div> \
 			<div id=\"output_table\"></div> \
 			<div id=\"preview\"></div> \
 		 </div>";
 		 
 		var outputTable = new HoldingTable(this.outputDefinitions, this.values);
-		var inputCodeGenerator = new InputCodeGenerator(this.values);
+		var inputCodeGenerator = new InputCodeGenerator(this.inputValues);
+		
+		if(this.outputDescriptionId) {
+			document.getElementById("outputDescriptionId").innerHTML = document.getElementById(this.outputDescriptionId).innerHTML + "<br /><br />";
+		}
 		
 		outputTable.mount("output_table", this.values);
 		inputCodeGenerator.mount("input_code_output");
@@ -325,11 +332,13 @@ class InputCodeGenerator {
 }
 
 class PatternAppTemplate {
-	constructor(title, inputDefinitions, outputDefinitions, previewConfiguration, exampleInputCode) {
+	constructor(title, inputDefinitions, outputDefinitions, previewConfiguration, inputDescriptionId, outputDescriptionId, exampleInputCode) {
 		this.title = title;
 		this.inputDefinitions = inputDefinitions;
 		this.outputDefinitions = outputDefinitions;
 		this.previewConfiguration = previewConfiguration;
+		this.inputDescriptionId = inputDescriptionId;
+		this.outputDescriptionId = outputDescriptionId;
 		this.exampleInputCode = exampleInputCode;
 		this.appId = title + "_" + guid();
 	}
@@ -346,7 +355,7 @@ class PatternAppTemplate {
 	showResult() {
 		var input = this.readInput();
 		var values = computeUpdatedValues(this.outputDefinitions, input);
-		var calculatedPattern = new CalculatedPattern(this.inputDefinitions, this.outputDefinitions, this.previewConfiguration, values);
+		var calculatedPattern = new CalculatedPattern(this.inputDefinitions, this.outputDefinitions, this.previewConfiguration, input, values, this.outputDescriptionId);
 		calculatedPattern.mount(this.appId + "_output");
 	}
 	
@@ -355,6 +364,7 @@ class PatternAppTemplate {
 		
 		document.getElementById(id).innerHTML = 
 		"<div class=\"container\"><h1>" + this.title + "</h1> \
+		 <div id=\"inputDescriptionId\"></div> \
 		 <ul class=\"nav nav-tabs\"> \
 			<li class=\"active\"><a data-toggle=\"tab\" href=\"#basic\">" + t("BASIC_INPUT") + "</a></li> \
 			<li><a data-toggle=\"tab\" href=\"#load\">" + t("LOAD_INPUT") + "</a></li> \
@@ -373,6 +383,10 @@ class PatternAppTemplate {
 		 <br /> \
 		 <br /> \
 		 <div id=\"" + this.appId + "_output\"></div></div>";
+		 
+		if(this.inputDescriptionId) {
+			document.getElementById("inputDescriptionId").innerHTML = document.getElementById(this.inputDescriptionId).innerHTML + "<br /><br />";
+		}
 		 
 		var inputTable = new HoldingTable(this.inputDefinitions);
 		inputTable.mount(this.appId + "_input");

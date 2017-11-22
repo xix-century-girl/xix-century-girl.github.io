@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="../../PatternAppTemplate/pattern-app-template.css" />
+	</head>
+	<body>
+		<div id="stockingAppInputDescription" class="description">
+			This application will help you in preparing draft of XVIII century stockings pattern.<br />
+			<h2>1. Choosing fabric</h2>
+			<p>Stockings must be flexible to be wearable. To make them like this we will need elastic and historically correct fabric. In XVIII century stockings were made from knitted fabric.
+			Currently knitted fabric is still available but it has very often addition of synthetic threads (elastan..?).</p>
+			<p>So, how to choose right fabric? Try to find knitted fabric with majority of natural threads (or fully natural IF it will be possible to find it).
+			Weave should be fine to have smooth fabric. It is very important to really have knitted fabric, not woven. I tried woven fabric. It was not elastic enough.</p>
+			<h2>2. Taking measurements</h2>
+			<h3>Fabric sample measurements</h3>
+			Cut 10cm x 10cm piece of fabric (that is initial width and length). Stretch it in your hands to the point where the fabric will be stratched as you wish it will be stretched on your leg.
+			Measure size of stretched piece (that is final width and length). Now, stretch the piece to the maximal possible width. Measure it again (that is maximal width and length).
+			<h3>Leg measurements</h3>
+			Measure your leg as shown on the picture. Put measurements into input below.
+			<div class="clearfix" style="margin:5px">
+				<div class="thumbnail" style="width:20%;float:left;margin-right:5px">
+					<a href="images/stockings_measurements.png">
+						<img src="images/stockings_measurements.png" alt="Stockings measurements" style="width:100%" />
+						<div class="caption">
+							<p>Stocking measurements</p>
+						</div>
+					</a>
+				</div>
+				Stocking above the knee should be high enough to not fall down, but not as high as in modern stockings.
+			</div>
+		</div>
+		<div id="stockingAppOutputDescription" class="description">
+			WIP
+		</div>
+		<div id="stockingsApp"></div>
+		<script src="../../PatternAppTemplate/pattern-app-template.js"></script>
+		<script>
+			var inputDefinitions = [
+				new InputDefinition("initialWidth", "Initial sample width [cm]"),
+				new InputDefinition("initialLength", "Initial sample length [cm]"),
+				new InputDefinition("finalWidth", "Final sample width [cm]"),
+				new InputDefinition("finalLength", "Final sample length [cm]"),
+				new InputDefinition("maximalWidth", "Maximal sample width [cm]"),
+				new InputDefinition("upperFootLength", "Upper foot length (a) [cm]"),
+				new InputDefinition("ankleToKneeLength", "Ankle to knee length (b) [cm]"),
+				new InputDefinition("kneeToThighLength", "Knee to thigh length (c) [cm]"),
+				new InputDefinition("kneeToLowerKneeLength", "Knee to lower knee length (d) [cm]"),
+				new InputDefinition("ankleToCalfLength", "Ankle to calf length (f) [cm]"),
+				new InputDefinition("toesCircumference", "Toes circumference (g) [cm]"),
+				new InputDefinition("heelCircumference", "Heel circumference (h) [cm]"),
+				new InputDefinition("ankleCircumference", "Ankle circumference (i) [cm]"),
+				new InputDefinition("calfCircumference", "Calf circumference (j) [cm]"),
+				new InputDefinition("lowerKneeCircumference", "Lower knee circumference (k) [cm]"),
+				new InputDefinition("kneeCircumference", "Knee circumference (l) [cm]"),
+				new InputDefinition("thighCircumference", "Thigh circumference (m) [cm]")
+			];
+			
+			var outputDefinitions = [
+				new OutputDefinition("widthRatio", "Width ratio", function(v) { return v.finalWidth / v.initialWidth;}, "float"),
+				new OutputDefinition("lengthRatio", "Length ratio", function(v) { return v.finalLength / v.initialLength;}, "float"),
+				new OutputDefinition("maxWidthRatio", "Maximal width ratio", function(v) { return v.maximalWidth / v.initialWidth;}, "float"),
+				new OutputDefinition("cUpperFootLength", "Calculated upper foot length", function(v) { return v.upperFootLength / v.lengthRatio;}, "cm"),
+				new OutputDefinition("cAnkleToCalfLength", "Calculated ankle to calf length", function(v) { return v.ankleToCalfLength / v.lengthRatio;}, "cm"),
+				new OutputDefinition("cKneeToLowerKneeLength", "Calculated knee to lower knee length", function(v) { return v.kneeToLowerKneeLength / v.lengthRatio;}, "cm"),
+				new OutputDefinition("cAnkleToKneeLength", "Calculated ankle to knee length", function(v) { return v.ankleToKneeLength / v.lengthRatio;}, "cm"),
+				new OutputDefinition("cKneeToThighLength", "Calculated knee to thigh length", function(v) { return v.kneeToThighLength / v.lengthRatio;}, "cm"),
+				new OutputDefinition("cToesCircumference", "Calculated toes circumference", function(v) { return v.toesCircumference / v.widthRatio;}, "cm"),
+				new OutputDefinition("cHeelCircumference", "Calculated heel circumference", function(v) { return v.heelCircumference / v.widthRatio;}, "cm"),
+				new OutputDefinition("cAnkleCircumference", "Calculated ankle circumference", function(v) { return Math.max(v.heelCircumference / v.maxWidthRatio, v.ankleCircumference / v.widthRatio);}, "cm"),
+				new OutputDefinition("cCalfCircumference", "Calculated calf circumference", function(v) { return v.calfCircumference / v.widthRatio;}, "cm"),
+				new OutputDefinition("cLowerKneeCircumference", "Calculated lower knee circumference", function(v) { return v.lowerKneeCircumference / v.widthRatio;}, "cm"),
+				new OutputDefinition("cKneeCircumference", "Calculated knee circumference", function(v) { return v.kneeCircumference / v.widthRatio;}, "cm"),
+				new OutputDefinition("cThighCircumference", "Calculated thigh circumference", function(v) { return v.thighCircumference / v.widthRatio;}, "cm"),
+				new OutputDefinition("BD", "BD", function(v) { return v.cKneeToThighLength;}, "cm"),
+				new OutputDefinition("DF", "DF", function(v) { return v.cKneeToLowerKneeLength;}, "cm"),
+				new OutputDefinition("DK", "DK", function(v) { return v.cAnkleToKneeLength;}, "cm"),
+				new OutputDefinition("HK", "HK", function(v) { return v.cAnkleToCalfLength;}, "cm"),
+				new OutputDefinition("KO", "KO", function(v) { return v.cUpperFootLength;}, "cm"),
+				new OutputDefinition("AB", "AB", function(v) { return v.cThighCircumference/2;}, "cm"),
+				new OutputDefinition("CD", "CD", function(v) { return v.cKneeCircumference/2;}, "cm"),
+				new OutputDefinition("EF", "EF", function(v) { return v.cLowerKneeCircumference/2;}, "cm"),
+				new OutputDefinition("GH", "GH", function(v) { return v.cCalfCircumference/2;}, "cm"),
+				new OutputDefinition("IK", "IK", function(v) { return v.cAnkleCircumference/2;}, "cm"),
+				new OutputDefinition("JK", "JK, JM, IL", function(v) { return v.cHeelCircumference/4;}, "cm"),
+				new OutputDefinition("IJ", "IJ, LM", function(v) { return v.IK - v.JK;}, "cm"),
+				new OutputDefinition("NO", "NO", function(v) { return v.cToesCircumference/4;}, "cm"),
+				new OutputDefinition("firstEl", "firstElementPlacement", function(v) { return [0, 0];}, "cm", false),
+				new OutputDefinition("secondEl", "secondElementPlacement", function(v) { return [v.firstEl[0] + v.AB + 10, v.firstEl[1] + v.cKneeToThighLength + v.cAnkleToKneeLength];}, "cm", false)
+			];
+			
+			var previewConfiguration = new PreviewConfiguration([
+				new PointDefinition("A", function(v) { return [v.firstEl[0] - v.AB, v.firstEl[1]]}),
+				new PointDefinition("B", function(v) { return v.firstEl}),
+				new PointDefinition("C", function(v) { return [v.firstEl[0] - v.CD, v.B[1] + v.BD]}),
+				new PointDefinition("D", function(v) { return [v.firstEl[0],        v.B[1] + v.BD]}),
+				new PointDefinition("E", function(v) { return [v.firstEl[0] - v.EF, v.D[1] + v.DF]}),
+				new PointDefinition("F", function(v) { return [v.firstEl[0],        v.D[1] + v.DF]}),
+				new PointDefinition("G", function(v) { return [v.firstEl[0] - v.GH, v.D[1] + (v.DK - v.HK)]}),
+				new PointDefinition("H", function(v) { return [v.firstEl[0],        v.D[1] + (v.DK - v.HK)]}),
+				new PointDefinition("I", function(v) { return [v.firstEl[0] - v.IK, v.H[1] + v.HK]}),
+				new PointDefinition("J", function(v) { return [v.firstEl[0] - v.JK, v.H[1] + v.HK]}),
+				new PointDefinition("K", function(v) { return [v.firstEl[0],        v.H[1] + v.HK]}),
+				new PointDefinition("L", function(v) { return [v.I[0],              v.I[1] + v.JK]}),
+				new PointDefinition("M", function(v) { return [v.L[0] + v.IJ,       v.L[1]]}),
+				new PointDefinition("N", function(v) { return [v.firstEl[0] - v.NO, v.K[1] + v.KO]}),
+				new PointDefinition("O", function(v) { return [v.firstEl[0],        v.K[1] + v.KO]}),
+				new PointDefinition("P", function(v) { return [v.secondEl[0] - v.JK, v.secondEl[1]]}),
+				new PointDefinition("R", function(v) { return [v.secondEl[0],        v.secondEl[1]]}),
+				new PointDefinition("S", function(v) { return [v.secondEl[0] - v.NO, v.secondEl[1] + v.KO]}),
+				new PointDefinition("T", function(v) { return [v.secondEl[0],        v.secondEl[1] + v.KO]}),
+				new PointDefinition("A'", function(v) { return [v.firstEl[0] + v.AB, v.firstEl[1]]}),
+				new PointDefinition("C'", function(v) { return [v.firstEl[0] + v.CD, v.B[1] + v.BD]}),
+				new PointDefinition("E'", function(v) { return [v.firstEl[0] + v.EF, v.D[1] + v.DF]}),
+				new PointDefinition("G'", function(v) { return [v.firstEl[0] + v.GH, v.D[1] + (v.DK - v.HK)]}),
+				new PointDefinition("I'", function(v) { return [v.firstEl[0] + v.IK, v.H[1] + v.HK]}),
+				new PointDefinition("J'", function(v) { return [v.firstEl[0] + v.JK, v.H[1] + v.HK]}),
+				new PointDefinition("L'", function(v) { return [v["I'"][0],          v.I[1] + v.JK]}),
+				new PointDefinition("M'", function(v) { return [v["L'"][0] - v.IJ,   v.L[1]]}),
+				new PointDefinition("N'", function(v) { return [v.firstEl[0] + v.NO, v.K[1] + v.KO]}),
+				new PointDefinition("P'", function(v) { return [v.secondEl[0] + v.JK, v.secondEl[1]]}),
+				new PointDefinition("S'", function(v) { return [v.secondEl[0] + v.NO, v.secondEl[1] + v.KO]}),
+			], [
+				new PathDefinition(["A", "B", "D", "F", "H", "K", "O", "N", "J", "M", "L", "I", "G", "E", "C", "A"]),
+				new PathDefinition(["O", "N'", "J'", "M'", "L'", "I'", "G'", "E'", "C'", "A'", "B"]),
+				new PathDefinition(["P", "R", "T", "S"]),
+				new PathDefinition(["P'", "R", "T", "S'"])
+			]);
+			
+			var app = new PatternAppTemplate("XVIII century stockings calculator", inputDefinitions, outputDefinitions, previewConfiguration, "stockingAppInputDescription", "stockingAppOutputDescription", "ew0KICAgImluaXRpYWxXaWR0aCI6MTEsDQogICAiaW5pdGlhbExlbmd0aCI6MTAsDQogICAiZmluYWxXaWR0aCI6MTQsDQogICAiZmluYWxMZW5ndGgiOjEwLA0KICAgIm1heGltYWxXaWR0aCI6MTcsDQogICAidXBwZXJGb290TGVuZ3RoIjoxOCwNCiAgICJhbmtsZVRvS25lZUxlbmd0aCI6MzksDQogICAia25lZVRvVGhpZ2hMZW5ndGgiOjEyLA0KICAgImtuZWVUb0xvd2VyS25lZUxlbmd0aCI6NiwNCiAgICJhbmtsZVRvQ2FsZkxlbmd0aCI6MjQsDQogICAidG9lc0NpcmN1bWZlcmVuY2UiOjE2LA0KICAgImhlZWxDaXJjdW1mZXJlbmNlIjozMCwNCiAgICJhbmtsZUNpcmN1bWZlcmVuY2UiOjIyLA0KICAgImNhbGZDaXJjdW1mZXJlbmNlIjozNiwNCiAgICJsb3dlcktuZWVDaXJjdW1mZXJlbmNlIjozMywNCiAgICJrbmVlQ2lyY3VtZmVyZW5jZSI6MzgsDQogICAidGhpZ2hDaXJjdW1mZXJlbmNlIjo0MA0KfQ==");
+			app.mount("stockingsApp");
+		</script>
+	</body>
+</html>
