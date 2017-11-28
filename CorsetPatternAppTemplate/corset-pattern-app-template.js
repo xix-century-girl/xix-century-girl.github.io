@@ -67,7 +67,7 @@ class CorsetPatternAppTemplate {
 			outputDefinitions.push(new OutputDefinition("calculated_underbust", "Calculated underbust corset length", function(v) { return (v.underbust - v.backSpace)/2.0;}, "cm"));
 		}
 		
-		outputDefinitions.push(new OutputDefinition("calculated_waist", "Calculated waist corset length", function(v) { return (v.waist - v.backSpace)/2.0;}, "cm"));
+		outputDefinitions.push(new OutputDefinition("calculated_waist", "Calculated waist corset length", function(v) { return (v.waist - v.reduction - v.backSpace)/2.0;}, "cm"));
 		
 		if(usedLevels.includes("upperHips")) {
 			outputDefinitions.push(new OutputDefinition("calculated_upperHips", "Calculated upper hips corset length", function(v) { return (v.upperHips - v.backSpace)/2.0;}, "cm"));
@@ -161,7 +161,7 @@ class CorsetPatternAppTemplate {
 					var distance = Math.max(...leftLengthsLabels.map( function(lengthLabel, index) {
 						return v[lengthLabel] + v[prevLengthsLabels[index]];
 					}));
-					return v["_v_" + (i-1)] + distance;
+					return v["_v_" + (i-1)] + distance + 1;
 				}
 			}, "cm", false, [partNo, prevLengthsLabels, leftLengthsLabels, rightLengthsLabels]));
 			paths.push(new PathDefinition(path));
