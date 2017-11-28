@@ -56,7 +56,7 @@ class CorsetPatternAppTemplate {
 		];
 		
 		for(var i = 0; i<partsNumber; ++i) {
-			outputDefinitions.push(new OutputDefinition("v_" + i, "From (0, 0) to v_" + i, function(v, i) { return (i*v.patternWidth)/4.0;}, "cm", true, i));
+			outputDefinitions.push(new OutputDefinition("v_" + i, "From (0, 0) to v_" + i, function(v, i) { return v["_v_" + i];}, "cm", true, i));
 		}
 		
 		if(usedLevels.includes("bust")) {
@@ -112,9 +112,15 @@ class CorsetPatternAppTemplate {
 			return String.fromCharCode(letter.charCodeAt(0) + diff);
 		}
 		
+		var prevLengthsLabels = [];
+		var leftLengthsLabels = [];
+		var rightLengthsLabels = [];
 		partsDefinitions.forEach(function (definition, partNo) {
 			var pointNo = 1;
-			var path = []
+			var path = [];
+			leftLengthsLabels = [];
+			rightLengthsLabels = [];
+			
 			definition.forEach(function (lengths, levelNo) {
 				var guidePointId = "G_" + genLetter("A", partNo) + (levelNo + 1);
 				
@@ -124,6 +130,7 @@ class CorsetPatternAppTemplate {
 					outputDefinitions.push(new OutputDefinition(leftPointId + "_to_" + guidePointId, "Length between " + leftPointId + " and " + guidePointId, function(v, args) { return v["calculated_" + args[0]]*args[1];}, "cm", true, [usedLevels[levelNo], lengths[0]/sums[levelNo]]));
 					points.push(new PointDefinition(leftPointId, function(v, args) { return [v[args[0]][0] - v[args[1] + "_to_" + args[0]], v[args[0]][1]];}, [guidePointId, leftPointId]));
 					path.unshift(leftPointId);
+					leftLengthsLabels.push(leftPointId + "_to_" + guidePointId);
 				}
 				
 				points.push(new PointDefinition(guidePointId, function(v, args) { return [v["v_" + args[0]], v["h_" + args[1]]];}, [partNo, usedLevels[levelNo]]));
@@ -138,11 +145,27 @@ class CorsetPatternAppTemplate {
 					outputDefinitions.push(new OutputDefinition(guidePointId + "_to_" + rightPointId, "Length between " + guidePointId + " and " + rightPointId, function(v, args) { return v["calculated_" + args[0]]*args[1];}, "cm", true, [usedLevels[levelNo], lengths[1]/sums[levelNo]]));
 					points.push(new PointDefinition(rightPointId, function(v, args) { return [v[args[0]][0] + v[args[0] + "_to_" + args[1]], v[args[0]][1]];}, [guidePointId, rightPointId]));
 					path.push(rightPointId);
+					rightLengthsLabels.push(guidePointId + "_to_" + rightPointId);
 				}
 				
 				
 			});
+			outputDefinitions.push(new OutputDefinition("_v_" + partNo, "*From (0, 0) to v_" + partNo, function(v, args) {
+				var i = args[0];
+				var prevLengthsLabels = args[1];
+				var leftLengthsLabels = args[2];
+				var rightLengthsLabels = args[3];
+				if(i == 0) {
+					return (leftLengthsLabels.length > 0 ? Math.max(...leftLengthsLabels) : 0);	
+				} else {
+					var distance = Math.max(...leftLengthsLabels.map( function(lengthLabel, index) {
+						return v[lengthLabel] + v[prevLengthsLabels[index]];
+					}));
+					return v["_v_" + (i-1)] + distance;
+				}
+			}, "cm", false, [partNo, prevLengthsLabels, leftLengthsLabels, rightLengthsLabels]));
 			paths.push(new PathDefinition(path));
+			prevLengthsLabels = rightLengthsLabels;
 		});
 		
 		var previewConfiguration = new PreviewConfiguration(points, paths, [

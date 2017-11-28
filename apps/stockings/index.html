@@ -32,7 +32,7 @@
 					</a>
 				</div>
 				<p>Stocking above the knee should be high enough to not fall down, but not as high as in modern stockings.</p>
-				<p>"l" circumference is circumference of the knee. "k" circumference is the place under knee where are bones. This is the place where garter should be tie. All vertical lengths should be measured in the front of leg.</p>
+				<p>"l" circumference is circumference of the knee. "k" circumference is the place under knee where are bones. This is the place where garter should be tied. All vertical lengths should be measured in the front of leg.</p>
 			</div>
 		</div>
 		<div id="stockingAppOutputDescription" class="description">
@@ -87,7 +87,7 @@
 				new OutputDefinition("EF", "EF", function(v) { return v.cLowerKneeCircumference/2;}, "cm"),
 				new OutputDefinition("GH", "GH", function(v) { return v.cCalfCircumference/2;}, "cm"),
 				new OutputDefinition("IK", "IK", function(v) { return v.cAnkleCircumference/2;}, "cm"),
-				new OutputDefinition("JK", "JK, JM, IL", function(v) { return v.cHeelCircumference/4;}, "cm"),
+				new OutputDefinition("JK", "JK, JM, IL", function(v) { return v.heelCircumference/4;}, "cm"),
 				new OutputDefinition("IJ", "IJ, LM", function(v) { return v.IK - v.JK;}, "cm"),
 				new OutputDefinition("NO", "NO", function(v) { return v.cToesCircumference/4;}, "cm"),
 				new OutputDefinition("firstEl", "firstElementPlacement", function(v) { return [0, 0];}, "cm", false),

@@ -43,7 +43,13 @@ function computeUpdatedValues(definitions, initialValues) {
 					try {
 						var res = definition.recipe(values, definition.args);
 						if(res !== res) throw "It is NaN!";
+						if(res == undefined) throw "It is undefined!";
 						if(typeof res === undefined) throw "It is undefined!";
+						if(res instanceof Array) {
+							for(var i = 0; i<res.length; ++i)
+								if(res[i] == null)
+									throw "Array value is null!";
+						}
 						values[definition.id] = res;
 						changedEl += 1;
 					} catch(ex) {
