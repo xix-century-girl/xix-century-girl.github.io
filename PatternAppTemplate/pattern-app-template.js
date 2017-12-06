@@ -313,7 +313,7 @@ class InputCodeLoader {
 			});
 			$('.nav-tabs a[href="#basic"]').tab('show');
 		} catch(ex) {
-			document.getElementById("inputCodeAlerts").innerHTML = "<div class=\"alert alert-danger alert-dismissible alertSpaced\" role=\"alert\">" + ex + "</div>";
+			document.getElementById("inputCodeAlerts").innerHTML = "<div class=\"alert alert-danger alert-dismissible alertSpaced\" role=\"alert\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>" + ex + "</div>";
 		}
 	}
 	
