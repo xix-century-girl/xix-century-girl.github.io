@@ -51,8 +51,8 @@ class CorsetPatternAppTemplate {
 		inputDefinitions.push(new InputDefinition("backSpace", "Back space width"));
 		
 		var outputDefinitions = [
-			new OutputDefinition("patternWidth", "Pattern width", function(v) { return (Math.max(v.bust ? v.bust : 0, v.underbust ? v.underbust : 0, v.upperHips ? v.upperHips : 0, v.hips ? v.hips : 0) - v.backSpace)/2.0;}, "cm"),
-			new OutputDefinition("patternHeight", "Pattern height", function(v) { return v.h_waist + Math.max(v.toBottomFront, v.toBottomSide, v.toBottomBack);}, "cm")
+			new OutputDefinition("patternWidth", "Pattern width", function(v) { return v["v_" + (partsNumber -1)];}, "cm"),
+			new OutputDefinition("patternHeight", "Pattern height", function(v) { return v.h_waist + Math.max((v.h_upperHips ? v.h_upperHips : 0), (v.h_hips ? v.h_hips : 0), v.toBottomFront, v.toBottomSide, v.toBottomBack);}, "cm")
 		];
 		
 		for(var i = 0; i<partsNumber; ++i) {
@@ -92,7 +92,7 @@ class CorsetPatternAppTemplate {
 		}
 		
 		if(usedLevels.includes("hips")) {
-			outputDefinitions.push(new OutputDefinition("h_hips", "From (0, 0) to h_hips", function(v) { return v.h_waist - v.waistToHips;}, "cm"));
+			outputDefinitions.push(new OutputDefinition("h_hips", "From (0, 0) to h_hips", function(v) { return v.h_waist + v.waistToHips;}, "cm"));
 		}
 		
 		//preparation before couting lengths

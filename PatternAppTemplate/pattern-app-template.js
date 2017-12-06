@@ -305,10 +305,16 @@ class InputCodeLoader {
 	}
 	
 	loadInputObject() {
-		var loadedInput = JSON.parse(atob(document.getElementById("input_code").value));
-		this.inputDefinitions.forEach(function (inputDefinition) {
-			document.getElementById(inputDefinition.id).value = loadedInput[inputDefinition.id];
-		});
+		try {
+			document.getElementById("inputCodeAlerts").innerHTML = "";
+			var loadedInput = JSON.parse(atob(document.getElementById("input_code").value));
+			this.inputDefinitions.forEach(function (inputDefinition) {
+				document.getElementById(inputDefinition.id).value = loadedInput[inputDefinition.id];
+			});
+			$('.nav-tabs a[href="#basic"]').tab('show');
+		} catch(ex) {
+			document.getElementById("inputCodeAlerts").innerHTML = "<div class=\"alert alert-danger alert-dismissible alertSpaced\" role=\"alert\">" + ex + "</div>";
+		}
 	}
 	
 	mount(id) {
@@ -321,7 +327,8 @@ class InputCodeLoader {
 			<label for=\"input_code\">" + t("INPUT_CODE") + ":</label> \
 			<textarea class=\"form-control\" id=\"input_code\"></textarea> \
 		 </div> \
-		 <button type=\"button\" onClick=\"window._loadInputObject()\" class=\"btn\">" + t("LOAD_INPUT") + "</button>";
+		 <button type=\"button\" onClick=\"window._loadInputObject()\" class=\"btn\">" + t("LOAD_INPUT") + "</button> \
+		 <div id=\"inputCodeAlerts\"></div>";
 	}
 }
 
