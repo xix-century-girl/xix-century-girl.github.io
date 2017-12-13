@@ -42,22 +42,24 @@ function computeUpdatedValues(definitions, initialValues) {
 				if(!(definition.id in values)) {
 					try {
 						var res = definition.recipe(values, definition.args);
-						if(res !== res) throw "It is NaN!";
-						if(res == undefined) throw "It is undefined!";
-						if(typeof res === undefined) throw "It is undefined!";
+						if(res !== res) throw definition.id + " is NaN!";
+						if(res == undefined) throw definition.id + " is undefined!";
+						if(typeof res === undefined) throw definition.id + " is undefined!";
 						if(res instanceof Array) {
 							for(var i = 0; i<res.length; ++i)
 								if(res[i] == null)
-									throw "Array value is null!";
+									throw "Array value of " + definition.id + " is null!";
 						}
 						values[definition.id] = res;
 						changedEl += 1;
 					} catch(ex) {
 						//skip
+						console.log(ex)
 					}
 				}
 			} catch(ex) {
 				//skip
+				console.log(ex)
 			}
 		});
 	} while(changedEl > 0);
@@ -165,11 +167,13 @@ class SVGPreview {
 	constructor(previewConfiguration, values) { //TODO no definitions
 		var ctx = this;
 		this.previewConfiguration = previewConfiguration;
+		console.log(values)
 		values = computeUpdatedValues(previewConfiguration.pointsDefinitions, values);
 		this.points = {};
 		previewConfiguration.pointsDefinitions.forEach(function (pointDefinition) {
 			ctx.points[pointDefinition.id] = values[pointDefinition.id];
 		});
+		console.log(this.points)
 		this.spacingPercents = previewConfiguration.spacingPercents;
 		this.scale = previewConfiguration.scale;
 		

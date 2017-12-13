@@ -51,14 +51,16 @@
 				new InputDefinition("ankleToKneeLength", "Ankle to knee length (b) [cm]"),
 				new InputDefinition("kneeToThighLength", "Knee to thigh length (c) [cm]"),
 				new InputDefinition("kneeToLowerKneeLength", "Knee to lower knee length (d) [cm]"),
-				new InputDefinition("ankleToCalfLength", "Ankle to calf length (f) [cm]"),
+				new InputDefinition("ankleToCalfLength", "Ankle to calf length (e) [cm]"),
+				new InputDefinition("heelLength", "Heel length (f) [cm]"),
 				new InputDefinition("toesCircumference", "Toes circumference (g) [cm]"),
-				new InputDefinition("heelCircumference", "Heel circumference (h) [cm]"),
-				new InputDefinition("ankleCircumference", "Ankle circumference (i) [cm]"),
-				new InputDefinition("calfCircumference", "Calf circumference (j) [cm]"),
-				new InputDefinition("lowerKneeCircumference", "Lower knee circumference (k) [cm]"),
-				new InputDefinition("kneeCircumference", "Knee circumference (l) [cm]"),
-				new InputDefinition("thighCircumference", "Thigh circumference (m) [cm]")
+				new InputDefinition("footCircumference", "Foot circumference (h) [cm]"),
+				new InputDefinition("heelCircumference", "Heel circumference (i) [cm]"),
+				new InputDefinition("ankleCircumference", "Ankle circumference (j) [cm]"),
+				new InputDefinition("calfCircumference", "Calf circumference (k) [cm]"),
+				new InputDefinition("lowerKneeCircumference", "Lower knee circumference (l) [cm]"),
+				new InputDefinition("kneeCircumference", "Knee circumference (m) [cm]"),
+				new InputDefinition("thighCircumference", "Thigh circumference (n) [cm]")
 			];
 			
 			var outputDefinitions = [
@@ -79,19 +81,20 @@
 				new OutputDefinition("cThighCircumference", "Calculated thigh circumference", function(v) { return v.thighCircumference / v.widthRatio;}, "cm"),
 				new OutputDefinition("BD", "BD", function(v) { return v.cKneeToThighLength;}, "cm"),
 				new OutputDefinition("DF", "DF", function(v) { return v.cKneeToLowerKneeLength;}, "cm"),
-				new OutputDefinition("DK", "DK", function(v) { return v.cAnkleToKneeLength;}, "cm"),
-				new OutputDefinition("HK", "HK", function(v) { return v.cAnkleToCalfLength;}, "cm"),
-				new OutputDefinition("KO", "KO", function(v) { return v.cUpperFootLength;}, "cm"),
+				new OutputDefinition("DJ", "DJ", function(v) { return v.cAnkleToKneeLength;}, "cm"),
+				new OutputDefinition("HJ", "HJ", function(v) { return v.cAnkleToCalfLength;}, "cm"),
+				new OutputDefinition("JP", "JP", function(v) { return v.cUpperFootLength;}, "cm"),
 				new OutputDefinition("AB", "AB", function(v) { return v.cThighCircumference/2;}, "cm"),
 				new OutputDefinition("CD", "CD", function(v) { return v.cKneeCircumference/2;}, "cm"),
 				new OutputDefinition("EF", "EF", function(v) { return v.cLowerKneeCircumference/2;}, "cm"),
 				new OutputDefinition("GH", "GH", function(v) { return v.cCalfCircumference/2;}, "cm"),
-				new OutputDefinition("IK", "IK", function(v) { return v.cAnkleCircumference/2;}, "cm"),
-				new OutputDefinition("JK", "JK, JM, IL", function(v) { return v.heelCircumference/4;}, "cm"),
-				new OutputDefinition("IJ", "IJ, LM", function(v) { return v.IK - v.JK;}, "cm"),
-				new OutputDefinition("NO", "NO", function(v) { return v.cToesCircumference/4;}, "cm"),
+				new OutputDefinition("IJ", "IJ", function(v) { return v.ankleCircumference/2;}, "cm"),
+				new OutputDefinition("KL", "KL, KN, IM", function(v) { return v.footCircumference/4;}, "cm"),
+				new OutputDefinition("JL", "JL", function(v) { return Math.sqrt((Math.pow(v.heelCircumference, 2) + Math.pow(v.heelLength, 2))/4 -v.heelCircumference*Math.sqrt(Math.pow(v.heelLength, 2)/4 + Math.pow(v.KL, 2)));}, "cm"),
+				new OutputDefinition("MN", "MN", function(v) { return v.heelLength/2;}, "cm"),
+				new OutputDefinition("OP", "OP", function(v) { return v.cToesCircumference/4;}, "cm"),
 				new OutputDefinition("firstEl", "firstElementPlacement", function(v) { return [0, 0];}, "cm", false),
-				new OutputDefinition("secondEl", "secondElementPlacement", function(v) { return [v.firstEl[0] + v.AB + 10, v.firstEl[1] + v.cKneeToThighLength + v.cAnkleToKneeLength];}, "cm", false)
+				new OutputDefinition("secondEl", "secondElementPlacement", function(v) { return [v.firstEl[0] + v.AB + 10, v.firstEl[1] + v.cKneeToThighLength + v.cAnkleToKneeLength + v.JL];}, "cm", false)
 			];
 			
 			var previewConfiguration = new PreviewConfiguration([
@@ -101,38 +104,39 @@
 				new PointDefinition("D", function(v) { return [v.firstEl[0],        v.B[1] + v.BD]}),
 				new PointDefinition("E", function(v) { return [v.firstEl[0] - v.EF, v.D[1] + v.DF]}),
 				new PointDefinition("F", function(v) { return [v.firstEl[0],        v.D[1] + v.DF]}),
-				new PointDefinition("G", function(v) { return [v.firstEl[0] - v.GH, v.D[1] + (v.DK - v.HK)]}),
-				new PointDefinition("H", function(v) { return [v.firstEl[0],        v.D[1] + (v.DK - v.HK)]}),
-				new PointDefinition("I", function(v) { return [v.firstEl[0] - v.IK, v.H[1] + v.HK]}),
-				new PointDefinition("J", function(v) { return [v.firstEl[0] - v.JK, v.H[1] + v.HK]}),
-				new PointDefinition("K", function(v) { return [v.firstEl[0],        v.H[1] + v.HK]}),
-				new PointDefinition("L", function(v) { return [v.I[0],              v.I[1] + v.JK]}),
-				new PointDefinition("M", function(v) { return [v.L[0] + v.IJ,       v.L[1]]}),
-				new PointDefinition("N", function(v) { return [v.firstEl[0] - v.NO, v.K[1] + v.KO]}),
-				new PointDefinition("O", function(v) { return [v.firstEl[0],        v.K[1] + v.KO]}),
-				new PointDefinition("P", function(v) { return [v.secondEl[0] - v.JK, v.secondEl[1]]}),
-				new PointDefinition("R", function(v) { return [v.secondEl[0],        v.secondEl[1]]}),
-				new PointDefinition("S", function(v) { return [v.secondEl[0] - v.NO, v.secondEl[1] + v.KO]}),
-				new PointDefinition("T", function(v) { return [v.secondEl[0],        v.secondEl[1] + v.KO]}),
+				new PointDefinition("G", function(v) { return [v.firstEl[0] - v.GH, v.D[1] + (v.DJ - v.HJ)]}),
+				new PointDefinition("H", function(v) { return [v.firstEl[0],        v.D[1] + (v.DJ - v.HJ)]}),
+				new PointDefinition("I", function(v) { return [v.firstEl[0] - v.IJ, v.H[1] + v.HJ]}),
+				new PointDefinition("J", function(v) { return [v.firstEl[0],        v.H[1] + v.HJ]}),
+				new PointDefinition("K", function(v) { return [v.L[0] - v.KL, v.L[1]]}),
+				new PointDefinition("L", function(v) { return [v.J[0], v.J[1] + v.JL]}),
+				new PointDefinition("M", function(v) { return [v.N[0] - v.MN,       v.N[1]]}),
+				new PointDefinition("N", function(v) { return [v.K[0],              v.K[1] + v.KL]}),
+				new PointDefinition("O", function(v) { return [v.firstEl[0] - v.OP, v.J[1] + v.JP]}),
+				new PointDefinition("P", function(v) { return [v.firstEl[0],        v.J[1] + v.JP]}),
+				new PointDefinition("R", function(v) { return [v.secondEl[0] - v.KL, v.secondEl[1]]}),
+				new PointDefinition("S", function(v) { return [v.secondEl[0],        v.secondEl[1]]}),
+				new PointDefinition("T", function(v) { return [v.secondEl[0] - v.OP, v.secondEl[1] + v.JP - v.JL]}),
+				new PointDefinition("W", function(v) { return [v.secondEl[0],        v.secondEl[1] + v.JP - v.JL]}),
 				new PointDefinition("A'", function(v) { return [v.firstEl[0] + v.AB, v.firstEl[1]]}),
 				new PointDefinition("C'", function(v) { return [v.firstEl[0] + v.CD, v.B[1] + v.BD]}),
 				new PointDefinition("E'", function(v) { return [v.firstEl[0] + v.EF, v.D[1] + v.DF]}),
-				new PointDefinition("G'", function(v) { return [v.firstEl[0] + v.GH, v.D[1] + (v.DK - v.HK)]}),
-				new PointDefinition("I'", function(v) { return [v.firstEl[0] + v.IK, v.H[1] + v.HK]}),
-				new PointDefinition("J'", function(v) { return [v.firstEl[0] + v.JK, v.H[1] + v.HK]}),
-				new PointDefinition("L'", function(v) { return [v["I'"][0],          v.I[1] + v.JK]}),
-				new PointDefinition("M'", function(v) { return [v["L'"][0] - v.IJ,   v.L[1]]}),
-				new PointDefinition("N'", function(v) { return [v.firstEl[0] + v.NO, v.K[1] + v.KO]}),
-				new PointDefinition("P'", function(v) { return [v.secondEl[0] + v.JK, v.secondEl[1]]}),
-				new PointDefinition("S'", function(v) { return [v.secondEl[0] + v.NO, v.secondEl[1] + v.KO]}),
+				new PointDefinition("G'", function(v) { return [v.firstEl[0] + v.GH, v.D[1] + (v.DJ - v.HJ)]}),
+				new PointDefinition("I'", function(v) { return [v.firstEl[0] + v.IJ, v.H[1] + v.HJ]}),
+				new PointDefinition("K'", function(v) { return [v.L[0] + v.KL, v.L[1]]}),
+				new PointDefinition("M'", function(v) { return [v["N'"][0] + v.MN,       v["N'"][1]]}),
+				new PointDefinition("N'", function(v) { return [v["K'"][0],              v["K'"][1] + v.KL]}),
+				new PointDefinition("O'", function(v) { return [v.firstEl[0] + v.OP, v.J[1] + v.JP]}),
+				new PointDefinition("R'", function(v) { return [v.secondEl[0] + v.KL, v.secondEl[1]]}),
+				new PointDefinition("T'", function(v) { return [v.secondEl[0] + v.OP, v.secondEl[1] + v.JP - v.JL]}),
 			], [
-				new PathDefinition(["A", "B", "D", "F", "H", "K", "O", "N", "J", "M", "L", "I", "G", "E", "C", "A"]),
-				new PathDefinition(["O", "N'", "J'", "M'", "L'", "I'", "G'", "E'", "C'", "A'", "B"]),
-				new PathDefinition(["P", "R", "T", "S"]),
-				new PathDefinition(["P'", "R", "T", "S'"])
+				new PathDefinition(["A", "B", "D", "F", "H", "J", "P", "O", "K", "N", "M", "I", "G", "E", "C", "A"]),
+				new PathDefinition(["P", "O'", "K'", "N'", "M'", "I'", "G'", "E'", "C'", "A'", "B"]),
+				new PathDefinition(["R", "S", "W", "T"]),
+				new PathDefinition(["R'", "S", "W", "T'"])
 			]);
 			
-			var app = new PatternAppTemplate("XVIII century stockings calculator", inputDefinitions, outputDefinitions, previewConfiguration, "stockingAppInputDescription", "stockingAppOutputDescription", "ew0KICAgImluaXRpYWxXaWR0aCI6MTEsDQogICAiaW5pdGlhbExlbmd0aCI6MTAsDQogICAiZmluYWxXaWR0aCI6MTQsDQogICAiZmluYWxMZW5ndGgiOjEwLA0KICAgIm1heGltYWxXaWR0aCI6MTcsDQogICAidXBwZXJGb290TGVuZ3RoIjoxOCwNCiAgICJhbmtsZVRvS25lZUxlbmd0aCI6MzksDQogICAia25lZVRvVGhpZ2hMZW5ndGgiOjEyLA0KICAgImtuZWVUb0xvd2VyS25lZUxlbmd0aCI6NiwNCiAgICJhbmtsZVRvQ2FsZkxlbmd0aCI6MjQsDQogICAidG9lc0NpcmN1bWZlcmVuY2UiOjE2LA0KICAgImhlZWxDaXJjdW1mZXJlbmNlIjozMCwNCiAgICJhbmtsZUNpcmN1bWZlcmVuY2UiOjIyLA0KICAgImNhbGZDaXJjdW1mZXJlbmNlIjozNiwNCiAgICJsb3dlcktuZWVDaXJjdW1mZXJlbmNlIjozMywNCiAgICJrbmVlQ2lyY3VtZmVyZW5jZSI6MzgsDQogICAidGhpZ2hDaXJjdW1mZXJlbmNlIjo0MA0KfQ==");
+			var app = new PatternAppTemplate("XVIII century stockings calculator", inputDefinitions, outputDefinitions, previewConfiguration, "stockingAppInputDescription", "stockingAppOutputDescription", "eyJpbml0aWFsV2lkdGgiOjExLCJpbml0aWFsTGVuZ3RoIjoxMCwiZmluYWxXaWR0aCI6MTQsImZpbmFsTGVuZ3RoIjoxMCwibWF4aW1hbFdpZHRoIjoxNywidXBwZXJGb290TGVuZ3RoIjoxOCwiYW5rbGVUb0tuZWVMZW5ndGgiOjM5LCJrbmVlVG9UaGlnaExlbmd0aCI6MTIsImtuZWVUb0xvd2VyS25lZUxlbmd0aCI6NiwiYW5rbGVUb0NhbGZMZW5ndGgiOjI0LCJoZWVsTGVuZ3RoIjoxMywidG9lc0NpcmN1bWZlcmVuY2UiOjE2LCJmb290Q2lyY3VtZmVyZW5jZSI6MjQsImhlZWxDaXJjdW1mZXJlbmNlIjozMCwiYW5rbGVDaXJjdW1mZXJlbmNlIjoyMiwiY2FsZkNpcmN1bWZlcmVuY2UiOjM2LCJsb3dlcktuZWVDaXJjdW1mZXJlbmNlIjozMywia25lZUNpcmN1bWZlcmVuY2UiOjM4LCJ0aGlnaENpcmN1bWZlcmVuY2UiOjQwfQ==");
 			app.mount("stockingsApp");
 		</script>
 	</body>
