@@ -209,7 +209,7 @@ class Output {
 				<div class=\"col-sm-6 control-label\">" + this.label + ":</div> \
 				<div class=\"col-sm-6\" style=\"padding: 0;\"> \
 					<div class=\"col-sm-8\"> \
-						<div class=\"text-left control-label\">" + drawEl(this.value, this.type) + "</div></div> \
+						<div class=\"text-left control-label\">" + drawEl(this.value, this.type) + "</div> \
 					</div> \
 					<div class=\"col-sm-4\" style=\"padding: 0;\"> \
 						<div id=\"" + this.id + "Alerts\"></div> \
