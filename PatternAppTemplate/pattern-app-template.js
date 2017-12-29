@@ -32,6 +32,20 @@ function prepareResult(res, precision = 1) {
 	return Math.floor(res*Math.pow(10, precision))/Math.pow(10, precision);
 }
 
+function drawEl(el, type) {
+	if(typeof el === undefined) {
+		return "?";
+	} else if(type == "html") {
+		return el;
+	} else if(type == "cm") {
+		return prepareResult(el) + " cm";
+	} else if(type == "float") {
+		return prepareResult(el, 2);
+	} else {
+		return el;
+	}
+}
+
 function computeUpdatedValues(definitions, initialValues) {
 	var changedEl = 0;
 	var values = JSON.parse(JSON.stringify(initialValues));
@@ -79,20 +93,21 @@ class Validator {
 		var content = "";
 		var newType = "";
 		if(exception) {
-			content = exception;
-			newType = "error";
+			content = "<strong>Error!</strong> " + exception;
+			newType = "danger";
 		} else {
 			content = this.label;
 			newType = this.type;
 		}
 		
-		document.getElementById(elId).innerHTML += "<div class=\"alert alert-" + newType.toLowerCase() + " alert-dismissable\"> \
+		document.getElementById(elId).innerHTML += "<div class=\"alert alert-" + newType.toLowerCase() + " alert-dismissable alertSpaced\"> \
 			<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button> \
-			<strong>" + newType.toUpperCase() + " !</strong> " + content + " \
+			" + content + " \
 		</div>";
 	}
 	
 	validate(elId, value) {
+		console.log(value)
 		try {
 			if (!this.func(value)) {
 				this._addAlert(elId);
@@ -106,19 +121,15 @@ class Validator {
 	}
 }
 
-var NOT_EMPTY = new Validator('notEmpty', 'Value required.', 'ERROR', function (value) {return value != null});
-var GT_ZERO = new Validator('gtZero', 'Value must be greater than zero.', 'ERROR', function (value) {return value > 0});
+var NOT_EMPTY = new Validator('notEmpty', '<strong>Error!</strong> Value required.', 'danger', function (value) {return !(typeof value === 'undefined' || !value)});
+var MUST_BE_FLOAT = new Validator('mustBeFloat', '<strong>Error!</strong> Value must be float.', 'danger', function (value) {return !isNaN(parseFloat(value))});
+var GT_ZERO = new Validator('gtZero', '<strong>Error!</strong> Value must be greater than zero.', 'danger', function (value) {return parseFloat(value) > 0});
 
 class InputDefinition {
-	constructor(id, label, validators = [NOT_EMPTY, GT_ZERO]) {
+	constructor(id, label, validators = [NOT_EMPTY, MUST_BE_FLOAT, GT_ZERO]) {
 		this.id = id;
 		this.label = label;
 		this.validators = validators;
-	}
-	
-	generateEl() {
-		return "<input id=\"" + this.id + "\" type=\"number\" step=\"0.01\" min=\"0\" class=\"form-control\"></input> \
-		<div id=\"" + this.id + "Alerts\"></div>";
 	}
 }
 
@@ -129,13 +140,23 @@ class Input {
 		this.validators = inputDefinition.validators;
 	}
 	
-	generateEl() {
-		return "<input id=\"" + this.id + "\" type=\"number\" step=\"0.01\" min=\"0\" class=\"form-control\"></input> \
-		<div id=\"" + this.id + "Alerts\"></div>";
+	draw() {
+		document[this.id + "_validate"] = this.validate.bind(this);
+		return "<div class=\"form-group\" style=\"margin-bottom: 5px\"> \
+			<div class=\"col-sm-8 control-label\">" + this.label + ":</div> \
+			<div class=\"col-sm-4\"> \
+				<input id=\"" + this.id + "\" type=\"number\" step=\"0.01\" min=\"0\" class=\"form-control\" onfocusout=\"document." + this.id + "_validate()\"></input> \
+			</div> \
+			<div id=\"" + this.id + "Alerts\" class=\"col-sm-12\"></div> \
+		</div>";
+	}
+	
+	getRawValue() {
+		return document.getElementById(this.id).value;
 	}
 	
 	getValue() {
-		return parseFloat(document.getElementById(this.id).value);
+		return parseFloat(this.getRawValue());
 	}
 	
 	setValue(value) {
@@ -145,7 +166,8 @@ class Input {
 	validate() {
 		document.getElementById(this.id + "Alerts").innerHTML = "";
 		for(var i = 0; i < this.validators.length; ++i) {
-			this.validators[i].validate(this.id + "Alerts")
+			if(!this.validators[i].validate(this.id + "Alerts", this.getRawValue()))
+				break;
 		}
 	}
 }
@@ -161,7 +183,7 @@ class OutputDefinition {
 	}
 }
 
-class Output { // TODO use
+class Output {
 	constructor(outputDefinition) {
 		this.id = outputDefinition.id;
 		this.label = outputDefinition.label;
@@ -169,27 +191,18 @@ class Output { // TODO use
 		this.type = outputDefinition.type;
 		this.visible = outputDefinition.visible;
 		this.args = outputDefinition.args;
+		this.value = null;
+	}
+	
+	draw() {
+		return "<div class=\"form-group\" style=\"margin-bottom: 5px\"><div class=\"col-sm-8 control-label\">" + this.label + ":</div><div class=\"col-sm-4\"><div class=\"text-left control-label\">" + drawEl(this.value, this.type) + "</div></div></div>";
 	}
 }
 
-class HoldingTable {
-	constructor(elems, values) {
+class TwoColumnList {
+	constructor(elems, draw) {
 		this.elems = elems;
-		this.values = values;
-	}
-	
-	draw(el, type = "html") {
-		if(typeof el === undefined) {
-			return "<div class=\"text-left control-label\">?</div>";
-		} else if(type == "html") {
-			return el;
-		} else if(type == "cm") {
-			return "<div class=\"text-left control-label\">" + prepareResult(el) + " cm</div>";
-		} else if(type == "float") {
-			return "<div class=\"text-left control-label\">" + prepareResult(el, 2) + "</div>";
-		} else {
-			return "<div class=\"text-left control-label\">" + el + "</div>";
-		}
+		this.draw = draw;
 	}
 	
 	mount(id, param = null) {
@@ -199,10 +212,7 @@ class HoldingTable {
 		"<div class=\"form-horizontal slimSpace twoColumns\">"
 			+
 			this.elems.map(function (el) {
-				if(typeof el.visible === 'undefined' || el.visible)
-					return "<div class=\"form-group\" style=\"margin-bottom: 5px\"><div class=\"col-sm-8 control-label\">" + el.label + ":</div><div class=\"col-sm-4\">" + ctx.draw((ctx.values ? ctx.values[el.id] : el.generateEl(param)), el.type) + "</div></div>";
-				else
-					return "";
+				return ctx.draw(el);
 			}).join("")
 			+
 		"</div>";
@@ -334,9 +344,9 @@ class Preview {
 }
 
 class CalculatedPattern {
-	constructor(inputs, outputDefinitions, previewConfiguration, values, outputDescriptionId) {
+	constructor(inputs, outputs, previewConfiguration, values, outputDescriptionId) {
 		this.inputs = inputs;
-		this.outputDefinitions = outputDefinitions;
+		this.outputs = outputs;
 		this.previewConfiguration = previewConfiguration;
 		this.values = values;
 		this.outputDescriptionId = outputDescriptionId;
@@ -351,7 +361,7 @@ class CalculatedPattern {
 			<div id=\"preview\"></div> \
 		 </div>";
 		 
-		var outputTable = new HoldingTable(this.outputDefinitions, this.values);
+		var outputTable = new TwoColumnList(this.outputs, function (el) {return el.draw()});
 		var inputCodeGenerator = new InputCodeGenerator(this.inputs);
 		
 		if(this.outputDescriptionId) {
@@ -423,7 +433,9 @@ class PatternAppTemplate {
 		this.inputs = inputDefinitions.map(function (inputDefinition) {
 			return new Input(inputDefinition);
 		});
-		this.outputDefinitions = outputDefinitions;
+		this.outputs = outputDefinitions.map(function (outputDefinition) {
+			return new Output(outputDefinition);
+		});
 		this.previewConfiguration = previewConfiguration;
 		this.inputDescriptionId = inputDescriptionId;
 		this.outputDescriptionId = outputDescriptionId;
@@ -441,8 +453,12 @@ class PatternAppTemplate {
 	}
 	
 	showResult() {
-		var values = computeUpdatedValues(this.outputDefinitions, this.readInput());
-		var calculatedPattern = new CalculatedPattern(this.inputs, this.outputDefinitions, this.previewConfiguration, values, this.outputDescriptionId);
+		var ctx = this;
+		var values = computeUpdatedValues(this.outputs, this.readInput());
+		this.outputs.forEach(function(output) {
+			output.value = values[output.id];
+		});
+		var calculatedPattern = new CalculatedPattern(this.inputs, this.outputs, this.previewConfiguration, values, this.outputDescriptionId);
 		calculatedPattern.mount(this.appId + "_output");
 	}
 	
@@ -475,7 +491,7 @@ class PatternAppTemplate {
 			document.getElementById("inputDescriptionId").innerHTML = document.getElementById(this.inputDescriptionId).innerHTML + "<br /><br />";
 		}
 		 
-		var inputTable = new HoldingTable(this.inputs);
+		var inputTable = new TwoColumnList(this.inputs, function (el) {return el.draw()});
 		inputTable.mount(this.appId + "_input");
 		
 		var inputCodeLoader = new InputCodeLoader(this.inputs, this.exampleInputCode);
