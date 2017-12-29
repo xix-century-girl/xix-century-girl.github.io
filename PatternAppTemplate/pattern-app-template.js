@@ -100,10 +100,10 @@ class Validator {
 			newType = this.type;
 		}
 		
-		document.getElementById(elId).innerHTML += "<div class=\"alert alert-" + newType.toLowerCase() + " alert-dismissable alertSpaced\"> \
-			<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button> \
-			" + content + " \
-		</div>";
+		document.getElementById(elId).innerHTML +=
+		"<a href=\"#\" data-toggle=\"tooltip\" data-html=\"true\" data-placement=\"bottom\" title=\"" + content + "\"><span class=\"glyphicon glyphicon-remove glyphiconButton text-" + newType.toLowerCase() + "\" aria-hidden=\"true\"></span></a>"
+
+		$("[data-toggle=tooltip").tooltip();
 	}
 	
 	validate(elId, value) {
@@ -141,13 +141,17 @@ class Input {
 	}
 	
 	draw() {
-		document[this.id + "_validate"] = this.validate.bind(this);
+		window["_" + this.id + "_validate"] = this.validate.bind(this);
 		return "<div class=\"form-group\" style=\"margin-bottom: 5px\"> \
-			<div class=\"col-sm-8 control-label\">" + this.label + ":</div> \
-			<div class=\"col-sm-4\"> \
-				<input id=\"" + this.id + "\" type=\"number\" step=\"0.01\" min=\"0\" class=\"form-control\" onfocusout=\"document." + this.id + "_validate()\"></input> \
+			<div class=\"col-sm-6 control-label\">" + this.label + ":</div> \
+			<div class=\"col-sm-6\" style=\"padding: 0;\"> \
+				<div class=\"col-sm-8\"> \
+					<input id=\"" + this.id + "\" type=\"number\" step=\"0.01\" min=\"0\" class=\"form-control\" onfocusout=\"window._" + this.id + "_validate()\"></input> \
+				</div> \
+				<div class=\"col-sm-4\" style=\"padding: 0;\"> \
+					<div id=\"" + this.id + "Alerts\"></div> \
+				</div> \
 			</div> \
-			<div id=\"" + this.id + "Alerts\" class=\"col-sm-12\"></div> \
 		</div>";
 	}
 	
@@ -167,8 +171,9 @@ class Input {
 		document.getElementById(this.id + "Alerts").innerHTML = "";
 		for(var i = 0; i < this.validators.length; ++i) {
 			if(!this.validators[i].validate(this.id + "Alerts", this.getRawValue()))
-				break;
+				return false;
 		}
+		return true;
 	}
 }
 
@@ -201,22 +206,29 @@ class Output {
 			return "";
 		else
 			return "<div class=\"form-group\" style=\"margin-bottom: 5px\"> \
-				<div class=\"col-sm-8 control-label\">" + this.label + ":</div> \
-				<div class=\"col-sm-4\"><div class=\"text-left control-label\">" + drawEl(this.value, this.type) + "</div></div> \
-				<div id=\"" + this.id + "Alerts\" class=\"col-sm-12\"></div> \
+				<div class=\"col-sm-6 control-label\">" + this.label + ":</div> \
+				<div class=\"col-sm-6\" style=\"padding: 0;\"> \
+					<div class=\"col-sm-8\"> \
+						<div class=\"text-left control-label\">" + drawEl(this.value, this.type) + "</div></div> \
+					</div> \
+					<div class=\"col-sm-4\" style=\"padding: 0;\"> \
+						<div id=\"" + this.id + "Alerts\"></div> \
+					</div> \
+				</div> \
 			</div>";
 	}
 	
 	validate() {
 		if(!this.visible)
-			return;
+			return true;
 		else {
 			document.getElementById(this.id + "Alerts").innerHTML = "";
 			for(var i = 0; i < this.validators.length; ++i) {
 				if(!this.validators[i].validate(this.id + "Alerts", this.value.toString()))
-					break;
+					return false;
 			}
 		}
+		return true;
 	}
 }
 
@@ -478,6 +490,17 @@ class PatternAppTemplate {
 	}
 	
 	showResult() {
+		var valid = true;
+		this.inputs.forEach(function (input) {
+			if(!input.validate()) {
+				console.log('LEAVE!');
+				valid = false;
+			}
+		});
+		if(!valid) {
+			// TODO show alert
+			return;
+		}
 		var ctx = this;
 		var values = computeUpdatedValues(this.outputs, this.readInput());
 		this.outputs.forEach(function(output) {
