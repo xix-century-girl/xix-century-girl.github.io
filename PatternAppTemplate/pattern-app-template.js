@@ -86,7 +86,7 @@ class Validator {
 			newType = this.type;
 		}
 		
-		document.getElementById.innerHTML += "<div class=\"alert alert-" + newType.toLowerCase() + " alert-dismissable\"> \
+		document.getElementById(elId).innerHTML += "<div class=\"alert alert-" + newType.toLowerCase() + " alert-dismissable\"> \
 			<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button> \
 			<strong>" + newType.toUpperCase() + " !</strong> " + content + " \
 		</div>";
@@ -138,6 +138,10 @@ class Input {
 		return parseFloat(document.getElementById(this.id).value);
 	}
 	
+	setValue(value) {
+		document.getElementById(this.id).value = value;
+	}
+	
 	validate() {
 		document.getElementById(this.id + "Alerts").innerHTML = "";
 		for(var i = 0; i < this.validators.length; ++i) {
@@ -157,7 +161,7 @@ class OutputDefinition {
 	}
 }
 
-class Output {
+class Output { // TODO use
 	constructor(outputDefinition) {
 		this.id = outputDefinition.id;
 		this.label = outputDefinition.label;
@@ -330,7 +334,7 @@ class Preview {
 }
 
 class CalculatedPattern {
-	constructor(inputs, outputDefinitions, previewConfiguration, values, outputDescriptionId) { // TODO no inputValues
+	constructor(inputs, outputDefinitions, previewConfiguration, values, outputDescriptionId) {
 		this.inputs = inputs;
 		this.outputDefinitions = outputDefinitions;
 		this.previewConfiguration = previewConfiguration;
@@ -365,8 +369,8 @@ class CalculatedPattern {
 }
 
 class InputCodeLoader {
-	constructor(inputDefinitions, exampleInputCode) {
-		this.inputDefinitions = inputDefinitions;
+	constructor(inputs, exampleInputCode) {
+		this.inputs = inputs;
 		this.exampleInputCode = exampleInputCode;
 	}
 	
@@ -374,8 +378,8 @@ class InputCodeLoader {
 		try {
 			document.getElementById("inputCodeAlerts").innerHTML = "";
 			var loadedInput = JSON.parse(atob(document.getElementById("input_code").value));
-			this.inputDefinitions.forEach(function (inputDefinition) {
-				document.getElementById(inputDefinition.id).value = loadedInput[inputDefinition.id];
+			this.inputs.forEach(function (input) {
+				input.setValue(loadedInput[input.id]);
 			});
 			$('.nav-tabs a[href="#basic"]').tab('show');
 		} catch(ex) {
