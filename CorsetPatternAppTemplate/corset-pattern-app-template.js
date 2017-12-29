@@ -11,7 +11,7 @@ function t_corset(str, languageId = "eng") {
 }
 
 class CorsetPatternAppTemplate {
-	constructor(title, partsNumber, usedLevels, partsDefinitions, exampleInputCode) {
+	constructor(title, partsNumber, usedLevels, partsDefinitions, inputDescriptionId, outputDescriptionId, exampleInputCode) {
 		var inputDefinitions = [];
 		
 		if(usedLevels.includes("bust"))
@@ -173,7 +173,7 @@ class CorsetPatternAppTemplate {
 		//TODO
 		], 20, 10);
 			
-		this.app = new PatternAppTemplate(title, inputDefinitions, outputDefinitions, previewConfiguration, null, null, exampleInputCode);
+		this.app = new PatternAppTemplate(title, inputDefinitions, outputDefinitions, previewConfiguration, inputDescriptionId, outputDescriptionId, exampleInputCode);
 	}
 
 	mount(id) {
