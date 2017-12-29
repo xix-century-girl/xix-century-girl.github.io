@@ -55,7 +55,8 @@ class CorsetPatternAppTemplate {
 			new OutputDefinition("patternHeight", "Pattern height", function(v) { return Math.max((v.h_upperHips ? v.h_upperHips : 0), (v.h_hips ? v.h_hips : 0), v.h_waist + Math.max(v.toBottomFront, v.toBottomSide, v.toBottomBack));}, "cm")
 		];
 		
-		for(var i = 0; i<partsNumber; ++i) {
+		outputDefinitions.push(new OutputDefinition("v_0", "From (0, 0) to v_0", function(v) { return v["_v_0"];}, "cm", true, null, [NOT_EMPTY, MUST_BE_FLOAT]));
+		for(var i = 1; i<partsNumber; ++i) {
 			outputDefinitions.push(new OutputDefinition("v_" + i, "From (0, 0) to v_" + i, function(v, i) { return v["_v_" + i];}, "cm", true, i));
 		}
 		

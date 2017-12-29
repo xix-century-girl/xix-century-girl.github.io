@@ -173,13 +173,14 @@ class Input {
 }
 
 class OutputDefinition {
-	constructor(id, label, recipe, type, visible = true, args = null) {
+	constructor(id, label, recipe, type, visible = true, args = null, validators = [NOT_EMPTY, MUST_BE_FLOAT, GT_ZERO]) {
 		this.id = id;
 		this.label = label;
 		this.recipe = recipe;
 		this.type = type;
 		this.visible = visible;
 		this.args = args;
+		this.validators = validators;
 	}
 }
 
@@ -191,11 +192,31 @@ class Output {
 		this.type = outputDefinition.type;
 		this.visible = outputDefinition.visible;
 		this.args = outputDefinition.args;
+		this.validators = this.visible ? outputDefinition.validators : [];
 		this.value = null;
 	}
 	
 	draw() {
-		return "<div class=\"form-group\" style=\"margin-bottom: 5px\"><div class=\"col-sm-8 control-label\">" + this.label + ":</div><div class=\"col-sm-4\"><div class=\"text-left control-label\">" + drawEl(this.value, this.type) + "</div></div></div>";
+		if(!this.visible)
+			return "";
+		else
+			return "<div class=\"form-group\" style=\"margin-bottom: 5px\"> \
+				<div class=\"col-sm-8 control-label\">" + this.label + ":</div> \
+				<div class=\"col-sm-4\"><div class=\"text-left control-label\">" + drawEl(this.value, this.type) + "</div></div> \
+				<div id=\"" + this.id + "Alerts\" class=\"col-sm-12\"></div> \
+			</div>";
+	}
+	
+	validate() {
+		if(!this.visible)
+			return;
+		else {
+			document.getElementById(this.id + "Alerts").innerHTML = "";
+			for(var i = 0; i < this.validators.length; ++i) {
+				if(!this.validators[i].validate(this.id + "Alerts", this.value.toString()))
+					break;
+			}
+		}
 	}
 }
 
@@ -370,6 +391,10 @@ class CalculatedPattern {
 		
 		outputTable.mount("output_table", this.values);
 		inputCodeGenerator.mount("input_code_output");
+		
+		this.outputs.forEach(function (output) {
+			output.validate();
+		})
 		
 		if(this.previewConfiguration) {
 			var preview = new Preview(this.previewConfiguration, this.values);
