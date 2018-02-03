@@ -43,8 +43,8 @@ class SVGPoint {
 	render(viewportConfiguration) {
 		var vc = viewportConfiguration;
 		return "<circle cx=\"" + this.getTransformedX(vc) + "\" cy=\"" + this.getTransformedY(vc) + "\" r=\"" + (this.size/10) + "\" stroke=\"transparent\" fill=\"" + this.color + "\"/> \
-			<circle cx=\"" + this.getTransformedX(vc) + "\" cy=\"" + this.getTransformedY(vc) + "\" r=\"" + (this.reactiveSize/10) + "\" stroke=\"transparent\" fill=\"transparent\" onMouseOver=\"evt.target.setAttribute('fill', '" + this.reactiveColor + "'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('fill', '" + this.reactiveColor + "')\" onMouseOut=\"evt.target.setAttribute('fill', 'transparent'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('fill', 'transparent')\" /> \
-			<text x=\"" + (this.getTransformedX(vc) + this.reactiveSize/10) + "\" y=\"" + (this.getTransformedY(vc) - this.reactiveSize/10) + "\" font-size=\"" + 2 + "\"><tspan id=\"label_" + this.id.replace("'", "_prim") + "\" fill=\"transparent\">" + this.id + "</tspan></text>";
+			<circle cx=\"" + this.getTransformedX(vc) + "\" cy=\"" + this.getTransformedY(vc) + "\" r=\"" + (this.reactiveSize/10) + "\" stroke=\"transparent\" fill=\"transparent\" onMouseOver=\"evt.target.setAttribute('fill', '" + this.reactiveColor + "'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'block')\" onMouseOut=\"evt.target.setAttribute('fill', 'transparent'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'none')\" /> \
+			<text x=\"" + (this.getTransformedX(vc) + this.reactiveSize/10) + "\" y=\"" + (this.getTransformedY(vc) - this.reactiveSize/10) + "\" font-size=\"" + 2 + "\"><tspan id=\"label_" + this.id.replace("'", "_prim") + "\" fill=\"red\" display=\"none\">" + this.id + "</tspan></text>";
 	}
 }
 
@@ -68,8 +68,8 @@ class SVGLine {
 		var label = prepareResult(lineLength) + "cm";
 		
 		return "<line x1=\"" + this.pointA.getTransformedX(vc) + "\" x2=\"" + this.pointB.getTransformedX(vc) + "\" y1=\"" + this.pointA.getTransformedY(vc) + "\" y2=\"" + this.pointB.getTransformedY(vc) + "\" stroke=\"" + this.color + "\" stroke-width=\"" + (this.width/10) + "\"/> \
-		<line x1=\"" + this.pointA.getTransformedX(vc) + "\" x2=\"" + this.pointB.getTransformedX(vc) + "\" y1=\"" + this.pointA.getTransformedY(vc) + "\" y2=\"" + this.pointB.getTransformedY(vc) + "\" stroke=\"transparent\" stroke-width=\"" + (this.reactiveWidth/10) + "\" onMouseOver=\"evt.target.setAttribute('stroke', '" + this.reactiveColor + "'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('fill', '" + this.reactiveColor + "')\" onMouseOut=\"evt.target.setAttribute('stroke', 'transparent'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('fill', 'transparent')\"/> \
-		<text x=\"" + (labelX + 1) + "\" y=\"" + (labelY - 1) + "\" font-size=\"" + 2 + "\"><tspan id=\"label_" + this.id.replace("'", "_prim") + "\" fill=\"transparent\">" + label + "</tspan></text>";
+		<line x1=\"" + this.pointA.getTransformedX(vc) + "\" x2=\"" + this.pointB.getTransformedX(vc) + "\" y1=\"" + this.pointA.getTransformedY(vc) + "\" y2=\"" + this.pointB.getTransformedY(vc) + "\" stroke=\"transparent\" stroke-width=\"" + (this.reactiveWidth/10) + "\" onMouseOver=\"evt.target.setAttribute('stroke', '" + this.reactiveColor + "'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'block')\" onMouseOut=\"evt.target.setAttribute('stroke', 'transparent'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'none')\"/> \
+		<text x=\"" + (labelX + 1) + "\" y=\"" + (labelY - 1) + "\" font-size=\"" + 2 + "\"><tspan id=\"label_" + this.id.replace("'", "_prim") + "\" fill=\"red\" display=\"none\">" + label + "</tspan></text>";
 	}
 }
 
