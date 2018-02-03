@@ -107,7 +107,7 @@ class CorsetPatternAppTemplate {
 		
 		//main calculations
 		var points = [];
-		var paths = [];
+		var shapes = [];
 		
 		function genLetter(letter, diff = 1) {
 			return String.fromCharCode(letter.charCodeAt(0) + diff);
@@ -162,16 +162,16 @@ class CorsetPatternAppTemplate {
 					var distance = Math.max(...leftLengthsLabels.map( function(lengthLabel, index) {
 						return v[lengthLabel] + v[prevLengthsLabels[index]];
 					}));
-					return v["_v_" + (i-1)] + distance + 1;
+					return v["_v_" + (i-1)] + distance + 2;
 				}
 			}, "cm", false, [partNo, prevLengthsLabels, leftLengthsLabels, rightLengthsLabels]));
-			paths.push(new PathDefinition(path));
+			shapes.push(new ShapeDefinition("El_" + partNo, path));
 			prevLengthsLabels = rightLengthsLabels;
 		});
 		
-		var previewConfiguration = new PreviewConfiguration(points, paths, [
+		var previewConfiguration = new PreviewConfiguration(points, [], shapes, [
 		//TODO
-		], 20, 10);
+		], 5, 10);
 			
 		this.app = new PatternAppTemplate(title, inputDefinitions, outputDefinitions, previewConfiguration, inputDescriptionId, outputDescriptionId, exampleInputCode);
 	}

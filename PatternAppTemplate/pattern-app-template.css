@@ -41,3 +41,7 @@
 .glyphiconButton {
 	font-size: 25px;
 }
+
+.normalCursor {
+	cursor: default;
+}

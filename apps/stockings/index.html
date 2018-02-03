@@ -8,6 +8,9 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
 		<link rel="stylesheet" href="../../PatternAppTemplate/pattern-app-template.css" />
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="../../PatternAppTemplate/utils.js"></script>
+		<script src="../../PatternAppTemplate/definitions.js"></script>
+		<script src="../../PatternAppTemplate/pattern-preview-module.js"></script>
 		<script src="../../PatternAppTemplate/pattern-app-template.js"></script>
 	</head>
 	<body>
@@ -131,11 +134,29 @@
 				new PointDefinition("R'", function(v) { return [v.secondEl[0] + v.KL, v.secondEl[1]]}),
 				new PointDefinition("T'", function(v) { return [v.secondEl[0] + v.OP, v.secondEl[1] + v.JP - v.JL]}),
 			], [
-				new PathDefinition(["A", "B", "D", "F", "H", "J", "P", "O", "K", "N", "M", "I", "G", "E", "C", "A"]),
-				new PathDefinition(["P", "O'", "K'", "N'", "M'", "I'", "G'", "E'", "C'", "A'", "B"]),
-				new PathDefinition(["R", "S", "W", "T"]),
-				new PathDefinition(["R'", "S", "W", "T'"])
-			]);
+				new LineDefinition("A", "B"),
+				new LineDefinition("B", "D"),
+				new LineDefinition("C", "D"),
+				new LineDefinition("D", "F"),
+				new LineDefinition("E", "F"),
+				new LineDefinition("A", "B"),
+				new LineDefinition("F", "H"),
+				new LineDefinition("G", "H"),
+				new LineDefinition("H", "J"),
+				new LineDefinition("I", "J"),
+				new LineDefinition("J", "L"),
+				new LineDefinition("K", "L"),
+				new LineDefinition("L", "P"),
+				new LineDefinition("O", "P"),
+				new LineDefinition("K", "N"),
+				new LineDefinition("M", "N"),
+				new LineDefinition("R", "S"),
+				new LineDefinition("S", "W"),
+				new LineDefinition("T", "W")
+			], [
+				new ShapeDefinition("Main part", ["A", "B", "A'", "C'", "E'", "G'", "I'", "M'", "N'", "K'", "O'", "P", "O", "K", "N", "M", "I", "G", "E", "C", "A"]),
+				new ShapeDefinition("Sole part", ["R", "S", "R'", "T'", "W", "T"]),
+			], [], 5, 8);
 			
 			var app = new PatternAppTemplate("XVIII century stockings calculator", inputDefinitions, outputDefinitions, previewConfiguration, "stockingAppInputDescription", "stockingAppOutputDescription", "eyJpbml0aWFsV2lkdGgiOjExLCJpbml0aWFsTGVuZ3RoIjoxMCwiZmluYWxXaWR0aCI6MTQsImZpbmFsTGVuZ3RoIjoxMCwibWF4aW1hbFdpZHRoIjoxNywidXBwZXJGb290TGVuZ3RoIjoxOCwiYW5rbGVUb0tuZWVMZW5ndGgiOjM5LCJrbmVlVG9UaGlnaExlbmd0aCI6MTIsImtuZWVUb0xvd2VyS25lZUxlbmd0aCI6NiwiYW5rbGVUb0NhbGZMZW5ndGgiOjI0LCJoZWVsTGVuZ3RoIjoxMywidG9lc0NpcmN1bWZlcmVuY2UiOjE2LCJmb290Q2lyY3VtZmVyZW5jZSI6MjQsImhlZWxDaXJjdW1mZXJlbmNlIjozMCwiYW5rbGVDaXJjdW1mZXJlbmNlIjoyMiwiY2FsZkNpcmN1bWZlcmVuY2UiOjM2LCJsb3dlcktuZWVDaXJjdW1mZXJlbmNlIjozMywia25lZUNpcmN1bWZlcmVuY2UiOjM4LCJ0aGlnaENpcmN1bWZlcmVuY2UiOjQwfQ==");
 			app.mount("stockingsApp");

@@ -1,13 +1,3 @@
-function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}
-
 function t(str, languageId = "eng") {
 	window.t_eng = {
 		BASIC_INPUT: "Basic input",
@@ -23,13 +13,9 @@ function t(str, languageId = "eng") {
 	try {
 		return window["t_" + languageId][str];
 	} catch(ex) {
-		console.log(ex);
+		//console.log(ex);
 		return window.t_eng[str];
 	}
-}
-
-function prepareResult(res, precision = 1) {
-	return Math.floor(res*Math.pow(10, precision))/Math.pow(10, precision);
 }
 
 function drawEl(el, type) {
@@ -68,12 +54,12 @@ function computeUpdatedValues(definitions, initialValues) {
 						changedEl += 1;
 					} catch(ex) {
 						//skip
-						console.log(ex)
+						//console.log(ex)
 					}
 				}
 			} catch(ex) {
 				//skip
-				console.log(ex)
+				//console.log(ex)
 			}
 		});
 	} while(changedEl > 0);
@@ -107,7 +93,7 @@ class Validator {
 	}
 	
 	validate(elId, value) {
-		console.log(value)
+		//console.log(value)
 		try {
 			if (!this.func(value)) {
 				this._addAlert(elId);
@@ -252,130 +238,6 @@ class TwoColumnList {
 	}
 }
 
-class PointDefinition {
-	constructor(id, recipe, args) {
-		this.id = id;
-		this.recipe = recipe;
-		this.args = args;
-	}
-}
-
-class PathDefinition {
-	constructor(points) {
-		this.points = points;
-	}
-}
-
-class GuideLineDefinition {
-	constructor(space, coord) {
-		this.space = space;
-		this.coord = coord;
-	}
-}
-
-class SVGPreview {
-	constructor(previewConfiguration, values) { //TODO no definitions
-		var ctx = this;
-		this.previewConfiguration = previewConfiguration;
-		console.log(values)
-		values = computeUpdatedValues(previewConfiguration.pointsDefinitions, values);
-		this.points = {};
-		previewConfiguration.pointsDefinitions.forEach(function (pointDefinition) {
-			ctx.points[pointDefinition.id] = values[pointDefinition.id];
-		});
-		console.log(this.points)
-		this.spacingPercents = previewConfiguration.spacingPercents;
-		this.scale = previewConfiguration.scale;
-		
-		var pointsCoords = Object.keys(this.points).map(function (key) {
-			return ctx.points[key];
-		});
-		this.xMin = pointsCoords.reduce(function(previousValue, currentValue) {
-			return previousValue < currentValue[0] ? previousValue : currentValue[0];
-		}, pointsCoords[0][0]);
-		this.yMin = pointsCoords.reduce(function(previousValue, currentValue) {
-			return previousValue < currentValue[1] ? previousValue : currentValue[1];
-		}, pointsCoords[0][1]);
-		this.xMax = pointsCoords.reduce(function(previousValue, currentValue) {
-			return previousValue > currentValue[0] ? previousValue : currentValue[0];
-		}, pointsCoords[0][0]);
-		this.yMax = pointsCoords.reduce(function(previousValue, currentValue) {
-			return previousValue > currentValue[1] ? previousValue : currentValue[1];
-		}, pointsCoords[0][1]);
-	}
-	
-	mount(id) {
-		var ctx = this;
-		var xSize = this.scale*(this.xMax - this.xMin);
-		var ySize = this.scale*(this.yMax - this.yMin);
-		var xSpacing = xSize*(this.spacingPercents/100.0);
-		var ySpacing = ySize*(this.spacingPercents/100.0);
-		
-		function xTrans(v) {
-			return ctx.scale*(v - ctx.xMin) + xSpacing;
-		}
-		
-		function yTrans(v) {
-			return ctx.scale*(v - ctx.yMin) + ySpacing;
-		}
-		
-		document.getElementById(id).innerHTML =
-		"<svg class=\"previewBorder\" width=\"" + (xSize + 2*xSpacing) + "\" height=\"" + (ySize + 2*ySpacing) + "\" viewBox=\"0 0 " + (xSize + 2*xSpacing) + " " + (ySize + 2*ySpacing) + "\">" + 
-		this.previewConfiguration.pathsDefinitions.map(function (pathDefinition) {
-			return "<polygon points=\"" + pathDefinition.points.map(function (pointId) {
-				return xTrans(ctx.points[pointId][0]) + "," + yTrans(ctx.points[pointId][1]);
-			}).join(" ") + "\" \
-			style=\"fill:transparent;stroke:black;stroke-width:1px;fill-rule:evenodd;\" />"
-		}) +
-		Object.keys(this.points).map(function (pointId) {
-			return "<circle cx=\"" + xTrans(ctx.points[pointId][0]) + "\" cy=\"" + yTrans(ctx.points[pointId][1]) + "\" r=\"2\" stroke=\"transparent\" fill=\"black\"/> \
-			<circle cx=\"" + xTrans(ctx.points[pointId][0]) + "\" cy=\"" + yTrans(ctx.points[pointId][1]) + "\" r=\"3\" stroke=\"transparent\" fill=\"transparent\" onMouseOver=\"evt.target.setAttribute('fill', 'red'); document.getElementById('label_" + pointId.replace("'", "_prim") + "').setAttribute('fill', 'red')\" onMouseOut=\"evt.target.setAttribute('fill', 'transparent'); document.getElementById('label_" + pointId.replace("'", "_prim") + "').setAttribute('fill', 'transparent')\" /> \
-			<text x=\"" + (xTrans(ctx.points[pointId][0]) +2) + "\" y=\"" + (yTrans(ctx.points[pointId][1]) -2) + "\"><tspan id=\"label_" + pointId.replace("'", "_prim") + "\" fill=\"transparent\">" + pointId + "</tspan></text>";
-		}) +
-		(this.guideLinesDefinitions ?
-			this.guideLinesDefinitions.map(function (guideLineDefinition) {
-				if(guideLineDefinition.space == "x")
-					return "<>";
-				else if(guideLineDefinition.space == "y")
-					return "<line x1=\"0\" x2=\"" + (xSize + 2*xSpacing) + "\" y1=\"" + (ySpacing + guideLineDefinition.coord) + "\" y2=\"" + (ySpacing + guideLineDefinition.coord) + "\" stroke=\"red\" stroke-width=\"1\"/>";
-				else {
-					console.log("Space: " + guideLineDefinition.space + " is not valid.");
-					return "<line x1=\"" + (xSpacing + guideLineDefinition.coord) + "\" x2=\"" + (xSpacing + guideLineDefinition.coord) + "\" y1=\"0\" y2=\"" + (ySize + 2*ySpacing) + "\" stroke=\"red\" stroke-width=\"1\"/>";
-				}
-			}) : "")
-		 + "</svg>";
-	}
-}
-
-class PreviewConfiguration {
-	constructor(pointsDefinitions, pathsDefinitions, guideLinesDefinitions, spacingPercents = 10, scale = 5) {
-		this.pointsDefinitions = pointsDefinitions;
-		this.pathsDefinitions = pathsDefinitions;
-		this.guideLinesDefinitions = guideLinesDefinitions;
-		this.spacingPercents = spacingPercents;
-		this.scale = scale;
-	}
-}
-
-class Preview {
-	constructor(previewConfiguration, values) {
-		this.previewConfiguration = previewConfiguration;
-		this.values = values;
-	}
-	
-	mount(id) {
-		if(this.previewConfiguration.pointsDefinitions && this.previewConfiguration.pointsDefinitions.length > 0) {
-			document.getElementById(id).innerHTML = 
-			"<label for=\"svg_preview\">" + t("PREVIEW") + ":</label> \
-			<div id=\"svg_preview\"></div>";
-			var svg = new SVGPreview(this.previewConfiguration, this.values);
-			svg.mount("svg_preview");
-		} else {
-			//TODO warning?
-		}
-	}
-}
-
 class CalculatedPattern {
 	constructor(inputs, outputs, previewConfiguration, values, outputDescriptionId) {
 		this.inputs = inputs;
@@ -493,7 +355,6 @@ class PatternAppTemplate {
 		var valid = true;
 		this.inputs.forEach(function (input) {
 			if(!input.validate()) {
-				console.log('LEAVE!');
 				valid = false;
 			}
 		});
