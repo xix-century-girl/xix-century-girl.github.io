@@ -4,9 +4,14 @@ function renderSvgLine(x1, x2, y1, y2, strokeColor, strokeOpacity, strokeWidth, 
 	opacity=\"" + opacity + "\" onMouseOver=\"" + onMouseOver + "\" onMouseOut=\"" + onMouseOut + "\" />";
 }
 
-function renderText(id, x, y, str, fill="red", fontSize=2, display='block', textAnchor='start') {
-	return "<text x=\"" + x + "\" y=\"" + y + "\" font-size=\"" + fontSize + "\"><tspan id=\"" + id + "\" \
-	fill=\"" + fill + "\" display=\"" + display + "\" text-anchor=\"" + textAnchor + "\">" + str + "</tspan></text>";
+function renderText(id, x, y, str, fill="red", fillOpacity, fontSize=2, display='block', textAnchor='start') {
+	var lines = str.split('\n')
+	var yMod = lines.length > 1 ? fontSize*(1.2*(lines.length + 1)+1)/2 : fontSize*1.2;
+	return "<text id=\"" + id + "\" y=\"" + (y - yMod) + "\" font-size=\"" + fontSize + "\" opacity=\"" + fillOpacity + "\" display=\"" + display + "\" > \
+			" + lines.map(function(txtPiece){
+				return "<tspan x=\"" + x + "\" fill=\"" + fill + "\" text-anchor=\"" + textAnchor + "\" dy=\"" + fontSize*1.2 + "\">" + txtPiece + "</tspan>";
+			}).join("") + " \
+		</text>";
 }
 
 function renderCircle(cx, cy, r, fillColor, opacity=1, onMouseOver="", onMouseOut="") {
@@ -72,7 +77,7 @@ class SVGPoint {
 				"evt.target.setAttribute('opacity', 1); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'block')",
 				"evt.target.setAttribute('opacity', 0); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'none')") +
 			renderText("label_" + this.id.replace("'", "_prim"), this.getTransformedX(vc) + this.reactiveSize/10, this.getTransformedY(vc) - this.reactiveSize/10,
-				this.id, "red", 1.5, 'none');
+				this.id, "red", 1, 1.5, 'none');
 	}
 }
 
@@ -95,19 +100,30 @@ class SVGLine {
 		var lineLength = Math.sqrt(Math.pow(this.pointA.getTransformedX(vc) - this.pointB.getTransformedX(vc), 2) + Math.pow(this.pointA.getTransformedY(vc) - this.pointB.getTransformedY(vc), 2));
 		var label = prepareResult(lineLength) + "cm";
 		
+		var textAnchor = 'start';
+		if(this.pointA.getTransformedX(vc) == this.pointB.getTransformedX(vc)){
+			labelX += this.reactiveWidth/10;
+		} else if(this.pointA.getTransformedY(vc) == this.pointB.getTransformedY(vc)){
+			textAnchor = 'middle';
+			labelY -= this.reactiveWidth/10;
+		} else {
+			labelX += this.reactiveWidth/10;
+			labelY -= this.reactiveWidth/10;
+		}
+		
 		return renderSvgLine(this.pointA.getTransformedX(vc), this.pointB.getTransformedX(vc),
 				this.pointA.getTransformedY(vc), this.pointB.getTransformedY(vc), this.color, 1, this.width/10) +
 			renderSvgLine(this.pointA.getTransformedX(vc), this.pointB.getTransformedX(vc),
 				this.pointA.getTransformedY(vc), this.pointB.getTransformedY(vc), this.reactiveColor, 1, this.reactiveWidth/10, 0,
 				"evt.target.setAttribute('opacity', 1); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'block')",
 				"evt.target.setAttribute('opacity', 0); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'none')") +
-			renderText("label_" + this.id.replace("'", "_prim"), labelX + 1, labelY - 1, label, "red", 1.5, 'none');
+			renderText("label_" + this.id.replace("'", "_prim"), labelX, labelY, label, "red", 1, 1.5, 'none', textAnchor);
 	}
 }
 
 class SVGShape {
 	constructor(points, fillColor, label="", fillOpacity=0.3, borderColor=null, borderOpacity=0.6, borderWidth=2,
-		reactiveFillColor=null, reactiveFillOpacity=0.5, reactiveBorderColor=null, reactiveBorderOpacity=1, reactiveBorderWidth=3) {
+		reactiveFillColor=null, reactiveFillOpacity=0.4, reactiveBorderColor=null, reactiveBorderOpacity=1, reactiveBorderWidth=3) {
 		this.points = points;
 		this.fillColor = fillColor;
 		this.fillOpacity = fillOpacity;
@@ -143,7 +159,7 @@ class SVGShape {
 			this.reactiveBorderWidth/10, 0,
 			"evt.target.setAttribute('opacity', 1); document.getElementById('" + basicShapeGuid + "').setAttribute('opacity', 0); document.getElementById('" + labelId + "').setAttribute('display', 'block')",
 			"evt.target.setAttribute('opacity', 0); document.getElementById('" + basicShapeGuid + "').setAttribute('opacity', 1); document.getElementById('" + labelId + "').setAttribute('display', 'none')") +
-			renderText(labelId, labelX, labelY, this.label, "orange", 1.5, "none", "middle");
+			renderText(labelId, labelX, labelY, this.label, "black", 0.5, 2, "none", "middle");
 	}
 }
 

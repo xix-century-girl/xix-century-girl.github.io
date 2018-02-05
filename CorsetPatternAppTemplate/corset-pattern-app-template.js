@@ -167,11 +167,11 @@ class CorsetPatternAppTemplate {
 			}, "cm", false, [partNo, prevLengthsLabels, leftLengthsLabels, rightLengthsLabels]));
 			var name = null;
 			if(partNo == 0)
-				name = "FrontPiece";
+				name = "Front\nPiece";
 			else if(partNo == partsNumber-1)
-				name = "BackPiece";
+				name = "Back\nPiece";
 			else
-				name = "SidePiece" + partNo;
+				name = "Side\nPiece\n" + partNo;
 			shapes.push(new ShapeDefinition(name, path));
 			prevLengthsLabels = rightLengthsLabels;
 		});
