@@ -165,7 +165,14 @@ class CorsetPatternAppTemplate {
 					return v["_v_" + (i-1)] + distance + 2;
 				}
 			}, "cm", false, [partNo, prevLengthsLabels, leftLengthsLabels, rightLengthsLabels]));
-			shapes.push(new ShapeDefinition("El_" + partNo, path));
+			var name = null;
+			if(partNo == 0)
+				name = "FrontPiece";
+			else if(partNo == partsNumber-1)
+				name = "BackPiece";
+			else
+				name = "SidePiece" + partNo;
+			shapes.push(new ShapeDefinition(name, path));
 			prevLengthsLabels = rightLengthsLabels;
 		});
 		

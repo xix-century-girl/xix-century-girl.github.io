@@ -1,19 +1,44 @@
+function renderSvgLine(x1, x2, y1, y2, strokeColor, strokeOpacity, strokeWidth, opacity=1, onMouseOver="", onMouseOut="") {
+	return "<line x1=\"" + x1 + "\" x2=\"" + x2 + "\" y1=\"" + y1 + "\" y2=\"" + y2 + "\" \
+	stroke=\"" + strokeColor + "\" stroke-opacity=\"" + strokeOpacity + "\" stroke-width=\"" + strokeWidth + "\" \
+	opacity=\"" + opacity + "\" onMouseOver=\"" + onMouseOver + "\" onMouseOut=\"" + onMouseOut + "\" />";
+}
+
+function renderText(id, x, y, str, fill="red", fontSize=2, display='block', textAnchor='start') {
+	return "<text x=\"" + x + "\" y=\"" + y + "\" font-size=\"" + fontSize + "\"><tspan id=\"" + id + "\" \
+	fill=\"" + fill + "\" display=\"" + display + "\" text-anchor=\"" + textAnchor + "\">" + str + "</tspan></text>";
+}
+
+function renderCircle(cx, cy, r, fillColor, opacity=1, onMouseOver="", onMouseOut="") {
+	return "<circle cx=\"" + cx + "\" cy=\"" + cy + "\" r=\"" + r + "\" fill=\"" + fillColor + "\" opacity=\"" + opacity + "\" \
+	onMouseOver=\"" + onMouseOver + "\" onMouseOut=\"" + onMouseOut + "\" />";
+}
+
+function renderShape(id, points, fillColor, fillOpacity, borderColor, borderOpacity, borderWidth, opacity=1, onMouseOver="", onMouseOut="") {
+	return "<polygon id=\"" + id + "\" points=\"" + points.join(" ") + "\" style=\"fill:" + fillColor + ";fill-opacity:" + fillOpacity + ";\
+	stroke:" + borderColor + ";stroke-opacity:" + borderOpacity + ";stroke-width:" + borderWidth + "\" opacity=\"" + opacity + "\" \
+	onMouseOver=\"" + onMouseOver + "\" onMouseOut=\"" + onMouseOut + "\" />";
+}
+
 class GridSVGElement {
-	constructor(scale, xShift, width, yShift, height) {
-		this.scale = scale
-		this.xShift = xShift;
-		this.width = width;
-		this.yShift = yShift;
-		this.height = height;
-	}
-	
-	render() {
+	render(viewportConfiguration) {
+		var vc = viewportConfiguration;
 		var result = "";
-		for(var i=1; i < this.width; ++i) {
-			result += "<line x1=\"" + i + "\" x2=\"" + i + "\" y1=\"0\" y2=\"" + this.height+ "\" stroke=\"grey\" stroke-width=\"1\"/>"
+		
+		var xFloor = Math.floor(vc.xShift);
+		var xS = vc.xShift - xFloor;
+		var yFloor = Math.floor(vc.yShift);
+		var yS = vc.yShift - yFloor;
+		
+		
+		
+		for(var i=0; i < vc.width; ++i) {
+			var width = (i-xFloor)%10 == 0 ? 0.2 : 0.1;
+			result += renderSvgLine(i + xS, i + xS, 0, vc.height, "gray", 0.3, width);
 		}
-		for(var i=1; i < this.height; ++i) {
-			result += "<line x1=\"0\" x2=\"" + this.width + "\" y1=\"" + i + "\" y2=\"" + i + "\" stroke=\"grey\" stroke-width=\"1\"/>"
+		for(var i=0; i < vc.height; ++i) {
+			var width = (i-yFloor)%10 == 0 ? 0.2 : 0.1;
+			result += renderSvgLine(0, vc.width, (i + yS), (i + yS), "gray", 0.3, width);
 		}
 		return result;
 	}
@@ -42,9 +67,12 @@ class SVGPoint {
 	
 	render(viewportConfiguration) {
 		var vc = viewportConfiguration;
-		return "<circle cx=\"" + this.getTransformedX(vc) + "\" cy=\"" + this.getTransformedY(vc) + "\" r=\"" + (this.size/10) + "\" stroke=\"transparent\" fill=\"" + this.color + "\"/> \
-			<circle cx=\"" + this.getTransformedX(vc) + "\" cy=\"" + this.getTransformedY(vc) + "\" r=\"" + (this.reactiveSize/10) + "\" stroke=\"transparent\" fill=\"transparent\" onMouseOver=\"evt.target.setAttribute('fill', '" + this.reactiveColor + "'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'block')\" onMouseOut=\"evt.target.setAttribute('fill', 'transparent'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'none')\" /> \
-			<text x=\"" + (this.getTransformedX(vc) + this.reactiveSize/10) + "\" y=\"" + (this.getTransformedY(vc) - this.reactiveSize/10) + "\" font-size=\"" + 2 + "\"><tspan id=\"label_" + this.id.replace("'", "_prim") + "\" fill=\"red\" display=\"none\">" + this.id + "</tspan></text>";
+		return renderCircle(this.getTransformedX(vc), this.getTransformedY(vc), this.size/10, this.color) +
+			renderCircle(this.getTransformedX(vc), this.getTransformedY(vc), this.reactiveSize/10, this.reactiveColor, 0,
+				"evt.target.setAttribute('opacity', 1); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'block')",
+				"evt.target.setAttribute('opacity', 0); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'none')") +
+			renderText("label_" + this.id.replace("'", "_prim"), this.getTransformedX(vc) + this.reactiveSize/10, this.getTransformedY(vc) - this.reactiveSize/10,
+				this.id, "red", 1.5, 'none');
 	}
 }
 
@@ -67,18 +95,30 @@ class SVGLine {
 		var lineLength = Math.sqrt(Math.pow(this.pointA.getTransformedX(vc) - this.pointB.getTransformedX(vc), 2) + Math.pow(this.pointA.getTransformedY(vc) - this.pointB.getTransformedY(vc), 2));
 		var label = prepareResult(lineLength) + "cm";
 		
-		return "<line x1=\"" + this.pointA.getTransformedX(vc) + "\" x2=\"" + this.pointB.getTransformedX(vc) + "\" y1=\"" + this.pointA.getTransformedY(vc) + "\" y2=\"" + this.pointB.getTransformedY(vc) + "\" stroke=\"" + this.color + "\" stroke-width=\"" + (this.width/10) + "\"/> \
-		<line x1=\"" + this.pointA.getTransformedX(vc) + "\" x2=\"" + this.pointB.getTransformedX(vc) + "\" y1=\"" + this.pointA.getTransformedY(vc) + "\" y2=\"" + this.pointB.getTransformedY(vc) + "\" stroke=\"transparent\" stroke-width=\"" + (this.reactiveWidth/10) + "\" onMouseOver=\"evt.target.setAttribute('stroke', '" + this.reactiveColor + "'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'block')\" onMouseOut=\"evt.target.setAttribute('stroke', 'transparent'); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'none')\"/> \
-		<text x=\"" + (labelX + 1) + "\" y=\"" + (labelY - 1) + "\" font-size=\"" + 2 + "\"><tspan id=\"label_" + this.id.replace("'", "_prim") + "\" fill=\"red\" display=\"none\">" + label + "</tspan></text>";
+		return renderSvgLine(this.pointA.getTransformedX(vc), this.pointB.getTransformedX(vc),
+				this.pointA.getTransformedY(vc), this.pointB.getTransformedY(vc), this.color, 1, this.width/10) +
+			renderSvgLine(this.pointA.getTransformedX(vc), this.pointB.getTransformedX(vc),
+				this.pointA.getTransformedY(vc), this.pointB.getTransformedY(vc), this.reactiveColor, 1, this.reactiveWidth/10, 0,
+				"evt.target.setAttribute('opacity', 1); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'block')",
+				"evt.target.setAttribute('opacity', 0); document.getElementById('label_" + this.id.replace("'", "_prim") + "').setAttribute('display', 'none')") +
+			renderText("label_" + this.id.replace("'", "_prim"), labelX + 1, labelY - 1, label, "red", 1.5, 'none');
 	}
 }
 
 class SVGShape {
-	constructor(points, fillColor, borderColor, borderWidth, label) {
+	constructor(points, fillColor, label="", fillOpacity=0.3, borderColor=null, borderOpacity=0.6, borderWidth=2,
+		reactiveFillColor=null, reactiveFillOpacity=0.5, reactiveBorderColor=null, reactiveBorderOpacity=1, reactiveBorderWidth=3) {
 		this.points = points;
 		this.fillColor = fillColor;
-		this.borderColor = borderColor;
+		this.fillOpacity = fillOpacity;
+		this.borderColor = borderColor == null ? fillColor : borderColor;
+		this.borderOpacity = borderOpacity;
 		this.borderWidth = borderWidth;
+		this.reactiveFillColor = reactiveFillColor == null ? fillColor : reactiveFillColor;
+		this.reactiveFillOpacity = reactiveFillOpacity;
+		this.reactiveBorderColor = reactiveBorderColor == null ? fillColor : reactiveBorderColor;
+		this.reactiveBorderOpacity = reactiveBorderOpacity;
+		this.reactiveBorderWidth = reactiveBorderWidth;
 		this.label = label;
 	}
 	
@@ -86,8 +126,24 @@ class SVGShape {
 		var vc = viewportConfiguration;
 		var points = this.points.map(function(point) {
 			return point.getTransformedX(vc) + "," + point.getTransformedY(vc);
-		}).join(" ");
-		return "<polygon points=\"" + points + "\" style=\"fill:" + this.fillColor + ";stroke:" + this.borderColor + ";stroke-width:" + (this.borderWidth/10) + "\" />";
+		});
+		var basicShapeGuid = "shape_" + guid();
+		var highlightedShapeGuid = basicShapeGuid + "_2";
+		var labelId = "label_" + basicShapeGuid;
+		
+		var labelX = this.points.reduce(function(prev, curr){
+			return prev + curr.getTransformedX(vc);
+		}, 0)/this.points.length;
+		var labelY = this.points.reduce(function(prev, curr){
+			return prev + curr.getTransformedY(vc);
+		}, 0)/this.points.length;
+		
+		return renderShape(basicShapeGuid, points, this.fillColor, this.fillOpacity, this.borderColor, this.borderOpacity, this.borderWidth/10) +
+			renderShape(highlightedShapeGuid, points, this.reactiveFillColor, this.reactiveFillOpacity, this.reactiveBorderColor, this.reactiveBorderOpacity,
+			this.reactiveBorderWidth/10, 0,
+			"evt.target.setAttribute('opacity', 1); document.getElementById('" + basicShapeGuid + "').setAttribute('opacity', 0); document.getElementById('" + labelId + "').setAttribute('display', 'block')",
+			"evt.target.setAttribute('opacity', 0); document.getElementById('" + basicShapeGuid + "').setAttribute('opacity', 1); document.getElementById('" + labelId + "').setAttribute('display', 'none')") +
+			renderText(labelId, labelX, labelY, this.label, "orange", 1.5, "none", "middle");
 	}
 }
 
@@ -134,14 +190,14 @@ class SVGPreview {
 		
 		this.points = previewConfiguration.pointsDefinitions.map(function (pointDefinition) {
 			var coords = values[pointDefinition.id];
-			return new SVGPoint(pointDefinition.id, coords[0], coords[1], "black", 2, "", "red", 6, pointDefinition.id);
+			return new SVGPoint(pointDefinition.id, coords[0], coords[1], "black", 2, "", "red", 5, pointDefinition.id);
 		});
 		
 		this.lines = previewConfiguration.constructionLinesDefinitions.map(function (lineDefinition) {
 			return new SVGLine(
 				findPointById(ctx.points, lineDefinition.pointA),
 				findPointById(ctx.points, lineDefinition.pointB),
-				"black", 1, "red", 6
+				"black", 1, "red", 5
 			);
 		});
 		
@@ -149,7 +205,7 @@ class SVGPreview {
 			var points = definition.points.map(function(pointId) {
 				return findPointById(ctx.points, pointId)
 			});
-			return new SVGShape(points, "rgba(255, 178, 0, 0.5)", "rgb(255, 178, 39)", 1, definition.id);
+			return new SVGShape(points, "orange", definition.id);
 		});
 		
 		this.spacingPercents = previewConfiguration.spacingPercents;
@@ -183,6 +239,7 @@ class SVGPreview {
 			);
 		
 		var children = [];
+		children.push(new GridSVGElement());
 		children = children.concat(this.shapes);
 		children = children.concat(this.lines);
 		children = children.concat(this.points);
