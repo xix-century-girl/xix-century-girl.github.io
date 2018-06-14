@@ -96,7 +96,7 @@ class CorsetPatternAppTemplate {
 			outputDefinitions.push(new OutputDefinition("h_hips", "From (0, 0) to h_hips", function(v) { return v.h_waist + v.waistToHips;}, "cm"));
 		}
 		
-		//preparation before couting lengths
+		//preparation before counting lengths
 		var sums = Array.apply(null, Array(usedLevels.length)).map(Number.prototype.valueOf,0);
 		
 		partsDefinitions.forEach(function(partDefinition) {
@@ -180,7 +180,7 @@ class CorsetPatternAppTemplate {
 		//TODO
 		], 5, 10);
 			
-		this.app = new PatternAppTemplate(title, inputDefinitions, outputDefinitions, previewConfiguration, inputDescriptionId, outputDescriptionId, exampleInputCode);
+		this.app = new PatternAppTemplate(title, new BasicInputProvider(inputDefinitions), outputDefinitions, previewConfiguration, inputDescriptionId, outputDescriptionId, exampleInputCode);
 	}
 
 	mount(id) {

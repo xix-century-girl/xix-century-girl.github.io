@@ -11,11 +11,16 @@
 		<script src="../../PatternAppTemplate/utils.js"></script>
 		<script src="../../PatternAppTemplate/definitions.js"></script>
 		<script src="../../PatternAppTemplate/pattern-preview-module.js"></script>
+		<script src="../../PatternAppTemplate/basic-input-provider.js"></script>
 		<script src="../../PatternAppTemplate/pattern-app-template.js"></script>
 	</head>
 	<body>
 		<div id="stockingAppInputDescription" class="description">
-			This application will help you in preparing draft of XVIII century stockings pattern.<br />
+			<p>This application will help you in preparing draft of XVIII century stockings pattern.</p>
+			<img src="images/20180614_204708.jpg" style="height: 200px" />
+			<img src="images/20180614_204721.jpg" style="height: 200px" />
+			<img src="images/20180614_204731.jpg" style="height: 200px" />
+			<img src="images/20180614_204749.jpg" style="height: 200px" />
 			<h2>1. Choosing fabric</h2>
 			<p>Stockings must be flexible to be wearable. To make them like this we will need elastic and historically correct fabric. In XVIII century stockings were made from knitted fabric.
 			Currently knitted fabric is still available but it has very often addition of synthetic threads (elastan..?).</p>
@@ -41,7 +46,14 @@
 			</div>
 		</div>
 		<div id="stockingAppOutputDescription" class="description">
-			WIP
+			<p>Above pattern should be drawn on paper and corrected as on image below. Also 4cm of bias should be added on top:</p>
+			<img src="images/final_pattern.png" height=300px"/>
+			<p>Note that no seams allowances should be added! Now, sew the parts using overcast stitch (if sewing by hand) or zigzag stitch (when using sewing machine).</p>
+			<img src="images/20180614_205026.jpg" height=300px"/>
+			<img src="images/20180614_205032.jpg" height=300px"/>
+			<p>Then, top edge should be folded (4cm) and finished with hemming stitch.</p>
+			<img src="images/20180614_205145.jpg" height=300px"/>
+			<img src="images/20180614_205041.jpg" height=300px"/>
 		</div>
 		<div id="stockingsApp"></div>
 		<script>
@@ -158,7 +170,7 @@
 				new ShapeDefinition("Sole\npart", ["R", "S", "R'", "T'", "W", "T"]),
 			], [], 5, 8);
 			
-			var app = new PatternAppTemplate("XVIII century stockings calculator", inputDefinitions, outputDefinitions, previewConfiguration, "stockingAppInputDescription", "stockingAppOutputDescription", "eyJpbml0aWFsV2lkdGgiOjExLCJpbml0aWFsTGVuZ3RoIjoxMCwiZmluYWxXaWR0aCI6MTQsImZpbmFsTGVuZ3RoIjoxMCwibWF4aW1hbFdpZHRoIjoxNywidXBwZXJGb290TGVuZ3RoIjoxOCwiYW5rbGVUb0tuZWVMZW5ndGgiOjM5LCJrbmVlVG9UaGlnaExlbmd0aCI6MTIsImtuZWVUb0xvd2VyS25lZUxlbmd0aCI6NiwiYW5rbGVUb0NhbGZMZW5ndGgiOjI0LCJoZWVsTGVuZ3RoIjoxMywidG9lc0NpcmN1bWZlcmVuY2UiOjE2LCJmb290Q2lyY3VtZmVyZW5jZSI6MjQsImhlZWxDaXJjdW1mZXJlbmNlIjozMCwiYW5rbGVDaXJjdW1mZXJlbmNlIjoyMiwiY2FsZkNpcmN1bWZlcmVuY2UiOjM2LCJsb3dlcktuZWVDaXJjdW1mZXJlbmNlIjozMywia25lZUNpcmN1bWZlcmVuY2UiOjM4LCJ0aGlnaENpcmN1bWZlcmVuY2UiOjQwfQ==");
+			var app = new PatternAppTemplate("XVIII century stockings calculator", new BasicInputProvider(inputDefinitions), outputDefinitions, previewConfiguration, "stockingAppInputDescription", "stockingAppOutputDescription", "eyJpbml0aWFsV2lkdGgiOjExLCJpbml0aWFsTGVuZ3RoIjoxMCwiZmluYWxXaWR0aCI6MTQsImZpbmFsTGVuZ3RoIjoxMCwibWF4aW1hbFdpZHRoIjoxNywidXBwZXJGb290TGVuZ3RoIjoxOCwiYW5rbGVUb0tuZWVMZW5ndGgiOjM5LCJrbmVlVG9UaGlnaExlbmd0aCI6MTIsImtuZWVUb0xvd2VyS25lZUxlbmd0aCI6NiwiYW5rbGVUb0NhbGZMZW5ndGgiOjI0LCJoZWVsTGVuZ3RoIjoxMywidG9lc0NpcmN1bWZlcmVuY2UiOjE2LCJmb290Q2lyY3VtZmVyZW5jZSI6MjQsImhlZWxDaXJjdW1mZXJlbmNlIjozMCwiYW5rbGVDaXJjdW1mZXJlbmNlIjoyMiwiY2FsZkNpcmN1bWZlcmVuY2UiOjM2LCJsb3dlcktuZWVDaXJjdW1mZXJlbmNlIjozMywia25lZUNpcmN1bWZlcmVuY2UiOjM4LCJ0aGlnaENpcmN1bWZlcmVuY2UiOjQwfQ==");
 			app.mount("stockingsApp");
 		</script>
 	</body>

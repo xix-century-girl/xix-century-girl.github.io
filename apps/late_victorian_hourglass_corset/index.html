@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Late victorian hourglass corset calculator</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="../../PatternAppTemplate/pattern-app-template.css" />
+		<script src="../../PatternAppTemplate/utils.js"></script>
+		<script src="../../PatternAppTemplate/definitions.js"></script>
+		<script src="../../PatternAppTemplate/pattern-preview-module.js"></script>
+		<script src="../../PatternAppTemplate/basic-input-provider.js"></script>
+		<script src="../../PatternAppTemplate/pattern-app-template.js"></script>
+		<script src="../../CorsetPatternAppTemplate/corset-pattern-app-template.js"></script>
+	</head>
+	<body>
+		<div id="LateVictorianHourglassCorsetApp"></div>
+		<div id="LateVictorianHourglassCorsetAppInputDescription" class="description">
+			The pattern used in this calculator was inspired by this <a href="http://kellbellestudio.blogspot.com/2012/07/announcement-paper-couture-presents.html">late victorian hourglass corset pattern (1870 - 1900) from "Kell Belle" blog</a>.
+		</div>
+		<script>
+			var app = new CorsetPatternAppTemplate("Late victorian hourglass corset calculator", 5, ["bust", "waist", "upperHips"], [
+				[[0, 108], [0, "straight"], [0, 84]],
+				[[41, 54], [21, 31], [28, 22]],
+				[[43, 48], [40, -14], [81, 127]],
+				[[105, 34], [30, 38], [135, 65]],
+				[[110, 0], [87, 0], [108, 0]]
+			], "LateVictorianHourglassCorsetAppInputDescription", null, "eyJidXN0Ijo5NSwid2Fpc3QiOjc3LCJ1cHBlckhpcHMiOjkzLCJ3YWlzdFRvQnVzdCI6MjEsIndhaXN0VG9VcHBlckhpcHMiOjExLCJ0b1RvcEZyb250IjoyNywidG9Ub3BTaWRlIjoxOCwidG9Ub3BCYWNrIjoyNCwidG9Cb3R0b21Gcm9udCI6MTMsInRvQm90dG9tU2lkZSI6MTEsInRvQm90dG9tQmFjayI6MTEsInJlZHVjdGlvbiI6MTAsImJhY2tTcGFjZSI6NX0=");
+			app.mount("LateVictorianHourglassCorsetApp");
+		</script>
+	</body>
+</html>
